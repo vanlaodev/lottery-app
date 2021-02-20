@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="primary">
-      <v-app-bar-nav-icon @click="$router.go(-1)"
+      <v-app-bar-nav-icon @click="$router.replace('/main')"
         ><v-icon>mdi-arrow-left</v-icon></v-app-bar-nav-icon
       >
       <v-app-bar-title>管理</v-app-bar-title>

@@ -1,10 +1,8 @@
 <template>
   <v-app>
     <v-app-bar app color="primary">
-        <v-app-bar-nav-icon @click="$router.go(-1)"
-        ><v-icon>mdi-cake-variant</v-icon></v-app-bar-nav-icon
-      >
-      <v-app-bar-title>郵電局週年晚宴抽獎程式</v-app-bar-title>
+      <v-app-bar-nav-icon><v-icon>mdi-cake-variant</v-icon></v-app-bar-nav-icon>
+      <v-app-bar-title>郵電局{{ anniversary }}週年晚宴抽獎程式</v-app-bar-title>
       <v-spacer></v-spacer>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
@@ -33,6 +31,8 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from "vuex";
+
 export default {
   data() {
     return {
@@ -40,7 +40,14 @@ export default {
       clock: null,
     };
   },
+  computed: {
+    ...mapState(["anniversary"]),
+    ...mapGetters(["needSetup"]),
+  },
   methods: {
+    navToSettings() {
+      this.$router.push({ path: "/settings" });
+    },
     navToManagement() {
       this.$router.push({ path: "/mgmt" });
     },
@@ -61,6 +68,9 @@ export default {
   mounted() {
     this.updateClock();
     this.startUpdateClockInterval();
+    if (this.needSetup) {
+      this.navToSettings();
+    }
   },
   beforeDestroy() {
     this.stopUpdateClockInterval();

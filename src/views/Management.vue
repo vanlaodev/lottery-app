@@ -14,7 +14,7 @@
         >
         <v-card
           color="red"
-          style="margin-top: 10px"
+          class="mt-3"
           @click.prevent="navToSettings"
           ><v-card-title>重新設置</v-card-title>
           <v-card-subtitle

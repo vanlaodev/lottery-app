@@ -14,7 +14,7 @@ export default new Vuex.Store({
   },
   getters: {
     needSetup: state => {
-      return !state.anniversary || !state.prizeCount;
+      return !state.anniversary || !state.prizeCount || !state.guests;
     }
   },
   mutations: {

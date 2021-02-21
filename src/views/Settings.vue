@@ -6,13 +6,19 @@
         @click="$router.replace({ path: '/mgmt' })"
         ><v-icon>mdi-arrow-left</v-icon></v-app-bar-nav-icon
       >
-      <v-app-bar-title>設置</v-app-bar-title>
+      <v-app-bar-title>{{
+        firstTimeSetup ? "首次設置" : "設置"
+      }}</v-app-bar-title>
     </v-app-bar>
     <v-main>
       <v-container fluid>
-        <v-card>
-          <v-form v-model="valid">
-            <v-container>
+        <v-alert v-if="!firstTimeSetup" type="warning"
+          >當您提交後所有設定及記錄將會被重置及無法還原，建議您在重置前先使用匯出功能匯出相關資料</v-alert
+        >
+        <v-card outlined>
+          <v-card-title>抽獎設定</v-card-title>
+          <v-form v-model="formValid">
+            <v-container fluid>
               <v-text-field
                 v-model="anniversary"
                 label="週年數"
@@ -31,37 +37,77 @@
                 ]"
                 required
               ></v-text-field>
+              <div class="mt-1">
+                <v-btn @click="importGuestList">匯入抽獎名單XLS</v-btn>
+                <v-btn
+                  color="info"
+                  class="ml-2"
+                  @click="previewImportedGuestList"
+                  v-if="guests.length > 0"
+                  >預覽已匯入抽獎名單(共{{ guests.length }}人)</v-btn
+                >
+              </div>
             </v-container>
           </v-form>
           <v-card-actions>
-            <v-btn :disabled="!valid" color="success" @click="submit"
+            <v-btn :disabled="!canSubmit" large color="success" @click="submit"
               >提交</v-btn
             ></v-card-actions
           ></v-card
         >
       </v-container>
     </v-main>
+    <guest-list-dialog
+      v-model="showGuestListDialog"
+      :guests="guests"
+    ></guest-list-dialog>
   </v-app>
 </template>
 
 <script>
 import { mapActions } from "vuex";
+import { openAndReadFile } from "../utils/native-client";
+import { parseGuestList } from "../utils/parse-guest-list";
+import GuestListDialog from "../components/GuestListDialog";
 
 export default {
+  components: { GuestListDialog },
   data() {
     return {
       anniversary: null,
       prizeCount: null,
-      valid: null,
+      formValid: null,
       firstTimeSetup: null,
+      guests: [],
+      showGuestListDialog: false,
     };
   },
+  computed: {
+    canSubmit() {
+      return this.formValid && this.guests.length > 0;
+    },
+  },
   methods: {
+    previewImportedGuestList() {
+      this.showGuestListDialog = true;
+    },
+    importGuestList() {
+      const openAndReadFileResult = openAndReadFile();
+      if (
+        !openAndReadFileResult.error &&
+        !openAndReadFileResult.cancel &&
+        openAndReadFileResult.data
+      ) {
+        const guests = parseGuestList(openAndReadFileResult.data);
+        this.guests = guests;
+      }
+      // TODO: show error
+    },
     async submit() {
-      if (this.valid) {
+      if (this.canSubmit) {
         await this.updateAnniversary(this.anniversary);
         await this.updatePrizeCount(this.prizeCount);
-        await this.updateGuests([]); // TODO
+        await this.updateGuests(this.guests);
         await this.updateWinners([]);
         this.$router.replace({ path: "/main" });
       }

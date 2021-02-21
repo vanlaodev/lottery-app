@@ -25,7 +25,7 @@ const routes = [{
     path: '/settings',
     name: 'Settings',
     component: Settings
-  },
+  }
 ]
 
 const router = new VueRouter({

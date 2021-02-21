@@ -36,12 +36,24 @@ export default new Vuex.Store({
   },
   actions: {
     async loadOrInitializeStates({
-      commit
+      commit,
+      state
     }) {
       commit('updateAnniversary', await localforage.getItem('anniversary'));
       commit('updatePrizeCount', await localforage.getItem('prizeCount'));
       commit('updateGuests', await localforage.getItem('guests') ?? []);
-      commit('updateWinners', await localforage.getItem('winners') ?? []);
+
+      let fakeWinners = [];
+      for (let i = 0; i < state.prizeCount; ++i) {
+        fakeWinners.push({
+          prize: i + 1,
+          nameZh: '劉浩宏',
+          nameEn: 'Van Lao'
+        })
+      }
+
+      // commit('updateWinners', await localforage.getItem('winners') ?? []);
+      commit('updateWinners', fakeWinners);
       commit('setInitialized');
     },
     async updateAnniversary({

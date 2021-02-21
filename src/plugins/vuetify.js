@@ -10,6 +10,9 @@ export default new Vuetify({
   theme: {
     dark: true,
     themes: {
+      light: {
+        primary: colors.deepPurple
+      },
       dark: {
         primary: colors.deepPurple
       }

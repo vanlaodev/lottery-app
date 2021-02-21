@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary">
+    <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon
         v-if="!firstTimeSetup"
         @click="$router.replace({ path: '/mgmt' })"
@@ -17,6 +17,7 @@
         >
         <v-card outlined>
           <v-card-title>抽獎設定</v-card-title>
+          <v-divider></v-divider>
           <v-form v-model="formValid">
             <v-container fluid>
               <v-text-field
@@ -38,8 +39,9 @@
                 required
               ></v-text-field>
               <div class="mt-1">
-                <v-btn @click="importGuestList">匯入抽獎名單</v-btn>
+                <v-btn @click="importGuestList" large>匯入抽獎名單</v-btn>
                 <v-btn
+                  large
                   color="info"
                   class="ml-2"
                   @click="previewImportedGuestList"
@@ -49,8 +51,9 @@
               </div>
             </v-container>
           </v-form>
+          <v-divider></v-divider>
           <v-card-actions>
-            <v-btn :disabled="!canSubmit" large color="success" @click="submit"
+            <v-btn class="ml-1" :disabled="!canSubmit" large color="success" @click="submit"
               >提交</v-btn
             ></v-card-actions
           ></v-card

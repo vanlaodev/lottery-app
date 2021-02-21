@@ -1,9 +1,14 @@
 const {
     ipcMain,
-    dialog
+    dialog,
+    app
 } = require('electron')
 
 const fs = require('fs')
+
+ipcMain.on('exit-app', (event, arg) => {
+    app.quit()
+});
 
 ipcMain.on('open-and-read-file', (event, arg) => {
     try {

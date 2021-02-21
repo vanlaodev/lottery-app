@@ -1,6 +1,8 @@
 <template>
   <v-card outlined class="fill-height d-flex flex-column">
-    <v-card-title><v-icon class="mr-2">mdi-gift</v-icon>中獎名單</v-card-title>
+    <v-card-title class="text-h4 info"
+      ><v-icon large class="mr-2">mdi-gift</v-icon>中獎名單</v-card-title
+    >
     <v-divider></v-divider>
     <v-list class="py-0 flex overflow-y-auto">
       <div v-for="winner in sortedWinners" :key="winner.prize">
@@ -9,7 +11,7 @@
             <v-list-item-title class="text-h6"
               >獎品 #{{ winner.prize }}</v-list-item-title
             >
-            <v-list-item-subtitle class="text-h4 text-wrap red--text"
+            <v-list-item-subtitle class="text-h4 text-wrap"
               >{{ winner.guest.staffNo }} -
               {{
                 winner.guest.nameZh ? winner.guest.nameZh : winner.guest.nameEn

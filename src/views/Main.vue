@@ -1,8 +1,9 @@
 <template>
   <v-app class="fill-height">
     <v-app-bar color="primary" app dark>
-      <v-app-bar-nav-icon><v-icon>mdi-cake-variant</v-icon></v-app-bar-nav-icon>
-      <v-app-bar-title>郵電局{{ anniversary }}週年晚宴抽獎程式</v-app-bar-title>
+      <v-app-bar-title
+        >郵電局{{ anniversary }}週年晚宴抽獎程式</v-app-bar-title
+      >
       <v-spacer></v-spacer>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">

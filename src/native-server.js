@@ -8,7 +8,11 @@ const fs = require('fs')
 ipcMain.on('open-and-read-file', (event, arg) => {
     try {
         const file = dialog.showOpenDialogSync({
-            properties: ['openFile']
+            properties: ['openFile'],
+            filters: arg && arg.filters ? arg.filters : [{
+                name: '全部檔案',
+                extensions: ['*']
+            }]
         });
         if (!file) {
             event.returnValue = {

@@ -38,7 +38,7 @@
                 required
               ></v-text-field>
               <div class="mt-1">
-                <v-btn @click="importGuestList">匯入抽獎名單XLS</v-btn>
+                <v-btn @click="importGuestList">匯入抽獎名單</v-btn>
                 <v-btn
                   color="info"
                   class="ml-2"
@@ -92,7 +92,9 @@ export default {
       this.showGuestListDialog = true;
     },
     importGuestList() {
-      const openAndReadFileResult = openAndReadFile();
+      const openAndReadFileResult = openAndReadFile([
+        { name: "Excel", extensions: ["xls", "xlsx"] },
+      ]);
       if (
         !openAndReadFileResult.error &&
         !openAndReadFileResult.cancel &&

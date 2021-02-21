@@ -10,11 +10,22 @@ export default new Vuex.Store({
     anniversary: null,
     prizeCount: null,
     guests: [],
+    excludedGuests: [],
     winners: []
   },
   getters: {
     needSetup: state => {
       return !state.anniversary || !state.prizeCount || !state.guests;
+    },
+    guestsCanBeDrawn: state => {
+      return state.guests.filter(x => !state.winners.map(w => w.guest).includes(x) && !state.excludedGuests.includes(x));
+    },
+    nextPrize: state => {
+      const drawnPrizes = state.winners.map(w => w.prize);
+      const prizeList = [];
+      for (let p = 1; p <= state.prizeCount; ++p) prizeList.push(p);
+      const availablePrizeList = prizeList.filter(p => !drawnPrizes.includes(p)).reverse();
+      return availablePrizeList.length > 0 ? availablePrizeList[0] : null;
     }
   },
   mutations: {
@@ -37,23 +48,23 @@ export default new Vuex.Store({
   actions: {
     async loadOrInitializeStates({
       commit,
-      state
+      state,
+      getters
     }) {
       commit('updateAnniversary', await localforage.getItem('anniversary'));
       commit('updatePrizeCount', await localforage.getItem('prizeCount'));
       commit('updateGuests', await localforage.getItem('guests') ?? []);
 
       let fakeWinners = [];
-      for (let i = 0; i < state.prizeCount; ++i) {
+      for (let i = state.prizeCount; i >= 20; --i) {
         fakeWinners.push({
-          prize: i + 1,
-          nameZh: '劉浩宏',
-          nameEn: 'Van Lao'
+          prize: i,
+          guest: getters.guestsCanBeDrawn[Math.floor(Math.random() * getters.guestsCanBeDrawn.length)]
         })
+        commit('updateWinners', fakeWinners);
       }
 
       // commit('updateWinners', await localforage.getItem('winners') ?? []);
-      commit('updateWinners', fakeWinners);
       commit('setInitialized');
     },
     async updateAnniversary({

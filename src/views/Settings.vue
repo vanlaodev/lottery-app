@@ -15,9 +15,8 @@
         <v-alert v-if="!firstTimeSetup" type="warning"
           >當您提交後所有設定及記錄將會被重置及無法還原，建議您在重置前先使用匯出功能匯出相關資料</v-alert
         >
-        <v-card outlined>
+        <v-card>
           <v-card-title>抽獎設定</v-card-title>
-          <v-divider></v-divider>
           <v-form v-model="formValid">
             <v-container fluid>
               <v-text-field
@@ -51,9 +50,13 @@
               </div>
             </v-container>
           </v-form>
-          <v-divider></v-divider>
           <v-card-actions>
-            <v-btn class="ml-1" :disabled="!canSubmit" large color="success" @click="submit"
+            <v-btn
+              class="ml-1"
+              :disabled="!canSubmit"
+              large
+              color="success"
+              @click="submit"
               >提交</v-btn
             ></v-card-actions
           ></v-card
@@ -110,8 +113,8 @@ export default {
     },
     async submit() {
       if (this.canSubmit) {
-        await this.updateAnniversary(this.anniversary);
-        await this.updatePrizeCount(this.prizeCount);
+        await this.updateAnniversary(parseInt(this.anniversary));
+        await this.updatePrizeCount(parseInt(this.prizeCount));
         await this.updateGuests(this.guests);
         await this.updateWinners([]);
         this.$router.replace({ path: "/main" });

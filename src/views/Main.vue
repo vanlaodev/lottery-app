@@ -22,16 +22,11 @@
     <v-main class="fill-height">
       <v-container class="fill-height" fluid>
         <v-row class="fill-height">
-          <v-col class="fill-height" cols="4">
+          <v-col class="fill-height" cols="5">
             <winner-list></winner-list>
           </v-col>
-          <v-col class="fill-height d-flex flex-column" cols="8">
-            <v-card outlined class="flex-grow-1 mb-5">
-              <v-card-text> </v-card-text>
-            </v-card>
-            <v-card outlined color="red" dark @click="navToManagement">
-              <v-card-text class="text-center text-h1">開始抽獎</v-card-text>
-            </v-card>
+          <v-col class="fill-height" cols="7">
+            <lottery></lottery>
           </v-col>
         </v-row>
       </v-container>
@@ -55,9 +50,10 @@ body {
 <script>
 import { mapState, mapGetters } from "vuex";
 import WinnerList from "../components/WinnerList";
+import Lottery from "../components/Lottery";
 
 export default {
-  components: { WinnerList },
+  components: { WinnerList, Lottery },
   data() {
     return {
       updateClockIntervalId: null,

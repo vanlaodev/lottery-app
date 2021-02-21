@@ -12,6 +12,9 @@
           ><v-card-title>匯出</v-card-title>
           <v-card-subtitle>抽獎記錄</v-card-subtitle></v-card
         >
+        <v-card dark color="green" class="mt-3" @click="showCurrentGuestList"
+          ><v-card-title>顯示當前抽獎名單 ({{ guests.length }}人)</v-card-title>
+        </v-card>
         <v-card dark color="red" class="mt-3" @click="navToSettings"
           ><v-card-title>重新設置</v-card-title>
           <v-card-subtitle
@@ -23,13 +26,28 @@
         </v-card>
       </v-container>
     </v-main>
+    <guest-list-dialog
+      v-model="showGuestListDialog"
+      :guests="guests"
+    ></guest-list-dialog>
   </v-app>
 </template>
 
 <script>
 import { exitApp } from "../utils/native-client";
+import { mapState } from "vuex";
+import GuestListDialog from "../components/GuestListDialog";
 
 export default {
+  components: { GuestListDialog },
+  data() {
+    return {
+      showGuestListDialog: false,
+    };
+  },
+  computed: {
+    ...mapState(["guests"]),
+  },
   methods: {
     exportData() {
       // TODO
@@ -39,6 +57,9 @@ export default {
     },
     exitApp() {
       exitApp();
+    },
+    showCurrentGuestList() {
+      this.showGuestListDialog = true;
     },
   },
 };

@@ -38,11 +38,11 @@
                 required
               ></v-text-field>
               <div class="mt-1">
-                <v-btn @click="importGuestList" large>匯入抽獎名單</v-btn>
+                <v-btn class="mr-2 mb-2" @click="importGuestList" large>匯入抽獎名單</v-btn>
                 <v-btn
                   large
+                  class="mb-2"
                   color="info"
-                  class="ml-2"
                   @click="previewImportedGuestList"
                   v-if="guests.length > 0"
                   >預覽已匯入抽獎名單(共{{ guests.length }}人)</v-btn

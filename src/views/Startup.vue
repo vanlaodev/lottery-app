@@ -1,3 +1,3 @@
 <template>
-  <div class="ma-2">Application starting up please wait...</div>
+  <div class="pa-3">Application starting up please wait...</div>
 </template>

@@ -43,28 +43,31 @@ export default new Vuex.Store({
     },
     setInitialized(state) {
       state.initialized = true;
+    },
+    newWinner(state, winner) {
+      state.winners.push(winner);
     }
   },
   actions: {
     async loadOrInitializeStates({
       commit,
-      state,
-      getters
+      // state,
+      // getters
     }) {
       commit('updateAnniversary', await localforage.getItem('anniversary'));
       commit('updatePrizeCount', await localforage.getItem('prizeCount'));
       commit('updateGuests', await localforage.getItem('guests') ?? []);
 
-      let fakeWinners = [];
+      /* let fakeWinners = [];
       for (let i = state.prizeCount; i >= 20; --i) {
         fakeWinners.push({
           prize: i,
           guest: getters.guestsCanBeDrawn[Math.floor(Math.random() * getters.guestsCanBeDrawn.length)]
         })
         commit('updateWinners', fakeWinners);
-      }
+      } */
 
-      // commit('updateWinners', await localforage.getItem('winners') ?? []);
+      commit('updateWinners', await localforage.getItem('winners') ?? []);
       commit('setInitialized');
     },
     async updateAnniversary({
@@ -90,6 +93,13 @@ export default new Vuex.Store({
     }, winners) {
       await localforage.setItem('winners', winners)
       commit('updateWinners', winners);
+    },
+    async newWinner({
+      commit,
+      state
+    }, winner) {
+      commit('newWinner', winner);
+      await localforage.setItem('winners', state.winners)
     }
   },
   modules: {}

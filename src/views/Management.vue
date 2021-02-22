@@ -8,20 +8,20 @@
     </v-app-bar>
     <v-main>
       <v-container fluid>
-        <v-card dark color="info" @click="exportData"
+        <!-- <v-card dark color="info" class="mb-3" @click="exportData"
           ><v-card-title>匯出</v-card-title>
           <v-card-subtitle>抽獎記錄</v-card-subtitle></v-card
-        >
-        <v-card dark color="green" class="mt-3" @click="showCurrentGuestList"
+        > -->
+        <v-card dark color="green" class="mb-3" @click="showCurrentGuestList"
           ><v-card-title>顯示當前抽獎名單 ({{ guests.length }}人)</v-card-title>
         </v-card>
-        <v-card dark color="red" class="mt-3" @click="navToSettings"
+        <v-card dark color="red" class="mb-3" @click="navToSettings"
           ><v-card-title>重新設置</v-card-title>
           <v-card-subtitle
             >包括週年數、抽奬名單、獎品資料等，原有設定和記錄將會被清除及覆蓋</v-card-subtitle
           >
         </v-card>
-        <v-card dark class="mt-3" @click="exitApp"
+        <v-card dark class="mb-3" @click="exitApp"
           ><v-card-title>退出程式</v-card-title>
         </v-card>
       </v-container>

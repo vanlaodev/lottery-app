@@ -4,7 +4,7 @@
       ><v-icon large class="mr-2">mdi-gift</v-icon>中獎名單</v-card-title
     >
     <v-divider></v-divider>
-    <v-list class="py-0 flex overflow-y-auto">
+    <v-list class="py-0 flex overflow-y-hidden">
       <div v-for="winner in sortedWinners" :key="winner.prize">
         <v-list-item two-line>
           <v-list-item-content>

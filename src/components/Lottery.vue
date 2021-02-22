@@ -5,7 +5,35 @@
       >{{ title }}</v-card-title
     >
     <v-divider></v-divider>
-    <div class="flex-grow-1"></div>
+    <v-container fluid class="flex-grow-1">
+      <v-row class="fill-height">
+        <v-col cols="12" class="text-center d-flex flex-column">
+          <div class="mt-auto mb-auto">
+            <div v-if="drawingGuest">
+              <div class="text-h1">{{ drawingGuest.staffNo }}</div>
+              <div class="text-h1">
+                {{
+                  drawingGuest.nameZh
+                    ? drawingGuest.nameZh
+                    : drawingGuest.nameEn
+                }}
+              </div>
+            </div>
+            <div v-if="lastWinner && (state == 'ready' || state == 'ended')">
+              <div class="text-h3">{{ lastWinner.prize }}號獎得主</div>
+              <div class="text-h1 mt-3">{{ lastWinner.guest.staffNo }}</div>
+              <div class="text-h1 mt-3">
+                {{
+                  lastWinner.guest.nameZh
+                    ? lastWinner.guest.nameZh
+                    : lastWinner.guest.nameEn
+                }}
+              </div>
+            </div>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
     <v-btn
       id="btn-draw"
       tile
@@ -37,22 +65,37 @@
 </style>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "Lottery",
   data() {
     return {
       state: "unknown",
+      drawingGuest: null,
+      lastWinner: null,
     };
   },
   methods: {
-    startDraw() {
+    async startDraw() {
       this.state = "drawing";
-      setTimeout(() => {
-        this.state = "ready";
-      }, 3000);
+      for (let i = 0; i < 200; ++i) {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 10);
+        });
+        this.drawingGuest = this.guestsCanBeDrawn[
+          Math.floor(Math.random() * this.guestsCanBeDrawn.length)
+        ];
+      }
+      this.lastWinner = {
+        prize: this.nextPrize,
+        guest: this.drawingGuest,
+      };
+      await this.newWinner(this.lastWinner);
+      this.drawingGuest = null;
+      this.state = this.canDraw ? "ready" : "ended";
     },
+    ...mapActions(["newWinner"]),
   },
   computed: {
     canDraw: function () {
@@ -71,9 +114,14 @@ export default {
       }
     },
     title: function () {
+      if (this.state == "drawn") {
+        return "";
+      }
       return !this.canDraw
-        ? "抽獎結束，感謝大家參與！"
-        : `正準備抽出第${this.nextPrize}號獎品`;
+        ? "抽獎結束"
+        : this.state == "drawing"
+        ? `正在抽取第${this.nextPrize}號獎品`
+        : `即將抽出第${this.nextPrize}號獎品`;
     },
     ...mapGetters(["nextPrize", "guestsCanBeDrawn"]),
   },

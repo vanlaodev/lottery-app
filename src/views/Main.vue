@@ -11,7 +11,7 @@
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
-        <v-list flat>
+        <v-list>
           <v-list-item @click="navToManagement">
             <v-list-item-content>
               <v-list-item-title>管理</v-list-item-title>
@@ -23,10 +23,10 @@
     <v-main class="fill-height">
       <v-container class="fill-height" fluid>
         <v-row class="fill-height">
-          <v-col class="fill-height" cols="5">
+          <v-col class="fill-height pr-3" cols="5">
             <winner-list></winner-list>
           </v-col>
-          <v-col class="fill-height" cols="7">
+          <v-col class="fill-height pl-0" cols="7">
             <lottery></lottery>
           </v-col>
         </v-row>

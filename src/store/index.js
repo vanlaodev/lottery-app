@@ -46,6 +46,9 @@ export default new Vuex.Store({
     },
     newWinner(state, winner) {
       state.winners.push(winner);
+    },
+    redrawWinner(state, winner) {
+      state.winners = state.winners.filter(w => w.prize != winner.prize);
     }
   },
   actions: {
@@ -99,6 +102,13 @@ export default new Vuex.Store({
       state
     }, winner) {
       commit('newWinner', winner);
+      await localforage.setItem('winners', state.winners)
+    },
+    async redrawWinner({
+      commit,
+      state
+    }, winner) {
+      commit('redrawWinner', winner);
       await localforage.setItem('winners', state.winners)
     }
   },

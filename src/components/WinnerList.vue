@@ -4,7 +4,7 @@
       ><v-icon large class="mr-2">mdi-gift</v-icon>中獎名單</v-card-title
     >
     <v-divider></v-divider>
-    <v-list class="py-0 flex overflow-y-hidden">
+    <v-list class="py-0 flex overflow-y-auto">
       <div v-for="winner in sortedWinners" :key="winner.prize">
         <v-list-item two-line>
           <v-list-item-content>
@@ -26,7 +26,7 @@
                 </v-btn>
               </template>
               <v-list flat>
-                <v-list-item>
+                <v-list-item @click="redrawWinner(winner)">
                   <v-list-item-content>
                     <v-list-item-title>重抽</v-list-item-title>
                   </v-list-item-content>
@@ -42,10 +42,13 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "WinnerList",
+  methods: {
+    ...mapActions(["redrawWinner"]),
+  },
   computed: {
     sortedWinners: function () {
       return this.winners.map((w) => w).sort((a, b) => a.prize - b.prize);

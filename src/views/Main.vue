@@ -1,9 +1,7 @@
 <template>
   <v-app class="fill-height">
     <v-app-bar color="primary" app dark>
-      <v-app-bar-title
-        >郵電局{{ anniversary }}週年晚宴抽獎程式</v-app-bar-title
-      >
+      <v-app-bar-title>郵電局{{ anniversary }}週年晚宴抽獎程式</v-app-bar-title>
       <v-spacer></v-spacer>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
@@ -23,10 +21,10 @@
     <v-main class="fill-height">
       <v-container class="fill-height" fluid>
         <v-row class="fill-height">
-          <v-col class="fill-height pr-3" cols="5">
+          <v-col class="fill-height" cols="5">
             <winner-list></winner-list>
           </v-col>
-          <v-col class="fill-height pl-0" cols="7">
+          <v-col class="fill-height">
             <lottery></lottery>
           </v-col>
         </v-row>
@@ -37,6 +35,7 @@
         <small>{{ clock | moment("YYYY年MM月DD日 HH:mm:ss") }}</small>
       </v-col>
     </v-footer>
+    <canvas id="confetti-canvas"></canvas>
   </v-app>
 </template>
 
@@ -45,6 +44,21 @@ html,
 body {
   height: 100%;
   overflow-y: hidden !important;
+}
+</style>
+
+<style scoped>
+#confetti-canvas {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2333;
+  border: 0px solid #000;
+  pointer-events: none;
 }
 </style>
 
@@ -62,7 +76,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["anniversary"]),
+    ...mapState(["anniversary", "winners"]),
     ...mapGetters(["needSetup"]),
   },
   methods: {
@@ -87,6 +101,8 @@ export default {
     },
   },
   mounted() {
+    window.readyConfetti("confetti-canvas");
+    window.showConfetti(0); // TODO: workaround
     this.updateClock();
     this.startUpdateClockInterval();
     if (this.needSetup) {

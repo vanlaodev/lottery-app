@@ -74,10 +74,31 @@ export default {
       state: "unknown",
       drawingGuest: null,
       lastWinner: null,
+      hndDelayUnsetLastWinner: null,
     };
   },
+  beforeDestroy() {
+    this.cancelDelayUnsetLastWinner();
+    if ("stopConfetti" in window) {
+      window.stopConfetti();
+    }
+  },
   methods: {
+    startDelayUnsetLastWinner(delay) {
+      this.cancelDelayUnsetLastWinner();
+      this.hndDelayUnsetLastWinner = setTimeout(() => {
+        this.lastWinner = null;
+      }, delay);
+    },
+    cancelDelayUnsetLastWinner() {
+      if (this.hndDelayUnsetLastWinner) {
+        clearTimeout(this.hndDelayUnsetLastWinner);
+        this.hndDelayUnsetLastWinner = null;
+      }
+    },
     async startDraw() {
+      this.cancelDelayUnsetLastWinner();
+      this.lastWinner = null;
       this.state = "drawing";
       for (let i = 0; i < 200; ++i) {
         await new Promise((resolve) => {
@@ -87,15 +108,29 @@ export default {
           Math.floor(Math.random() * this.guestsCanBeDrawn.length)
         ];
       }
-      this.lastWinner = {
+      if ("showConfetti" in window) {
+        window.showConfetti(this.nextPrize == 1 ? 15000 : 3000);
+      }
+      const newWinner = {
         prize: this.nextPrize,
         guest: this.drawingGuest,
       };
-      await this.newWinner(this.lastWinner);
+      await this.newWinner(newWinner);
+      this.lastWinner = newWinner;
       this.drawingGuest = null;
       this.state = this.canDraw ? "ready" : "ended";
+      if (this.state == "ready") {
+        this.startDelayUnsetLastWinner(15000);
+      }
     },
     ...mapActions(["newWinner"]),
+  },
+  watch: {
+    canDraw() {
+      if (this.canDraw && this.state == "ended") {
+        this.state = "ready";
+      }
+    },
   },
   computed: {
     canDraw: function () {
@@ -120,8 +155,8 @@ export default {
       return !this.canDraw
         ? "抽獎結束"
         : this.state == "drawing"
-        ? `正在抽取第${this.nextPrize}號獎品`
-        : `即將抽出第${this.nextPrize}號獎品`;
+        ? `正在抽取${this.nextPrize}號獎品`
+        : `即將抽出${this.nextPrize}號獎品`;
     },
     ...mapGetters(["nextPrize", "guestsCanBeDrawn"]),
   },

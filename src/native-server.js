@@ -10,6 +10,45 @@ ipcMain.on('exit-app', (event, arg) => {
     app.quit()
 });
 
+ipcMain.on('show-save-file-dialog', (event, arg) => {
+    try {
+        const file = dialog.showSaveDialogSync();
+        if (!file) {
+            event.returnValue = {
+                cancel: true
+            };
+        } else {
+            event.returnValue = {
+                data: file
+            };
+        }
+    } catch (err) {
+        event.returnValue = {
+            error: err
+        }
+    }
+});
+
+ipcMain.on('write-text-to-file', (event, arg) => {
+    try {
+        fs.writeFile(arg.file, arg.text, null, err => {
+            if (err) {
+                event.returnValue = {
+                    error: err
+                };
+            } else {
+                event.returnValue = {
+                    success: true
+                };
+            }
+        });
+    } catch (err) {
+        event.returnValue = {
+            error: err
+        };
+    }
+});
+
 ipcMain.on('open-and-read-file', (event, arg) => {
     try {
         const file = dialog.showOpenDialogSync({

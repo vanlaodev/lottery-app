@@ -1,6 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import localforage from "localforage";
+import {
+  autoSaveDataToFile
+} from "../utils/native-client";
 
 Vue.use(Vuex);
 
@@ -38,6 +41,16 @@ export default new Vuex.Store({
         .reverse();
       return availablePrizeList.length > 0 ? availablePrizeList[0] : null;
     },
+    saveData: (state) => {
+      return {
+        anniversary: state.anniversary,
+        prizeCount: state.prizeCount,
+        guests: state.guests,
+        excludedGuests: state.excludedGuests,
+        winners: state.winners,
+        logs: state.logs
+      };
+    }
   },
   mutations: {
     updateAnniversary(state, anniversary) {
@@ -87,6 +100,18 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    async loadSaveData({
+      dispatch
+    }, data) {
+      await dispatch("updateAnniversary", data.data.anniversary);
+      await dispatch("updatePrizeCount", data.data.prizeCount);
+      await dispatch("updateGuests", data.data.guests ?? []);
+      await dispatch(
+        "updateExcludedGuests",
+        data.data.excludedGuests ?? []);
+      await dispatch("updateWinners", data.data.winners ?? []);
+      await dispatch("updateLogs", data.data.logs ?? []);
+    },
     async loadOrInitializeStates({
       commit
     }) {
@@ -168,8 +193,15 @@ export default new Vuex.Store({
       commit('clearLogs');
       await localforage.setItem('logs', state.logs);
     },
+    async updateLogs({
+      commit
+    }, logs) {
+      await localforage.setItem("logs", logs);
+      commit("updateLogs", logs);
+    },
     async setup({
-      dispatch
+      dispatch,
+      getters
     }, payload) {
       await dispatch('updateAnniversary', payload.anniversary);
       await dispatch('updatePrizeCount', payload.prizeCount);
@@ -177,7 +209,9 @@ export default new Vuex.Store({
       await dispatch('updateExcludedGuests', []);
       await dispatch('updateWinners', []);
 
-      // TODO: autosave
+      if (!getters.needSetup) {
+        autoSaveDataToFile(getters.saveData);
+      }
 
       await dispatch('clearLogs');
       await dispatch('appendLog', `Setup: anniversary=${payload.anniversary}, prizeCount=${payload.prizeCount}, guests=${payload.guests.length}`);

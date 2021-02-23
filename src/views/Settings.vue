@@ -8,16 +8,26 @@
     </v-app-bar>
     <v-main>
       <v-container fluid>
-        <v-card dark color="info" class="mb-3" @click="exportData"
-          ><v-card-title>匯出資料</v-card-title></v-card
+        <v-card dark color="info" class="mb-3" @click="importData"
+          ><v-card-title>讀取</v-card-title>
+          <v-card-subtitle
+            >加載儲存資料，包括週年數、抽奬名單、獎品資料等</v-card-subtitle
+          ></v-card
+        >
+        <v-card dark color="warning" class="mb-3" @click="exportData"
+          ><v-card-title>儲存</v-card-title>
+          <v-card-subtitle
+            >匯出儲存資料，包括週年數、抽奬名單、獎品資料等</v-card-subtitle
+          ></v-card
         >
         <v-card dark color="green" class="mb-3" @click="showCurrentGuestList"
-          ><v-card-title>顯示當前抽獎名單 ({{ guests.length }}人)</v-card-title>
+          ><v-card-title>當前抽獎名單</v-card-title>
+          <v-card-subtitle>總人數：{{ guests.length }}人</v-card-subtitle>
         </v-card>
         <v-card dark color="red" class="mb-3" @click="navToSetup"
           ><v-card-title>重新設置</v-card-title>
           <v-card-subtitle
-            >包括週年數、抽奬名單、獎品資料等，原有設定和記錄將會被清除及覆蓋</v-card-subtitle
+            >包括週年數、抽奬名單、獎品資料等，原有設定和記錄將會被清除</v-card-subtitle
           >
         </v-card>
         <v-card dark class="mb-3" @click="exitApp"
@@ -33,8 +43,12 @@
 </template>
 
 <script>
-import { exitApp } from "../utils/native-client";
-import { mapState } from "vuex";
+import {
+  exitApp,
+  importDataFromFile,
+  showSaveFileDialogAndExportData,
+} from "../utils/native-client";
+import { mapState, mapGetters, mapActions } from "vuex";
 import GuestListDialog from "../components/GuestListDialog";
 
 export default {
@@ -46,10 +60,19 @@ export default {
   },
   computed: {
     ...mapState(["guests"]),
+    ...mapGetters(["saveData"]),
   },
   methods: {
+    ...mapActions(["loadSaveData"]),
+    async importData() {
+      const data = importDataFromFile();
+      if (data != null) {
+        await this.loadSaveData(data);
+        this.$router.replace({ path: "/main" });
+      }
+    },
     exportData() {
-      // TODO
+      showSaveFileDialogAndExportData(this.saveData);
     },
     navToSetup() {
       this.$router.push({ path: "/setup" });

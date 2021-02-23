@@ -13,7 +13,7 @@
     <v-main>
       <v-container fluid>
         <v-alert v-if="!firstTimeSetup" type="warning"
-          >當您提交後所有設定及記錄將會被重置及無法還原</v-alert
+          >當您提交後所有設定及記錄將會被清除，包括週年數、抽奬名單、獎品資料等</v-alert
         >
         <v-card>
           <v-card-title>抽獎設定</v-card-title>

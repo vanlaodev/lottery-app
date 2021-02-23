@@ -1,8 +1,8 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import localforage from 'localforage'
+import Vue from "vue";
+import Vuex from "vuex";
+import localforage from "localforage";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
@@ -10,23 +10,29 @@ export default new Vuex.Store({
     anniversary: null,
     prizeCount: null,
     guests: [],
-    excludedGuests: [],
-    winners: []
+    excludedGuests: [], // mainly for exlcude the redrawn guest
+    winners: [],
   },
   getters: {
-    needSetup: state => {
+    needSetup: (state) => {
       return !state.anniversary || !state.prizeCount || !state.guests;
     },
-    guestsCanBeDrawn: state => {
-      return state.guests.filter(x => !state.winners.map(w => w.guest).includes(x) && !state.excludedGuests.includes(x));
+    guestsCanBeDrawn: (state) => {
+      return state.guests.filter(
+        (x) =>
+          !state.winners.map((w) => w.guest.staffNo).includes(x.staffNo) &&
+          !state.excludedGuests.map((w) => w.guest.staffNo).includes(x.staffNo)
+      );
     },
-    nextPrize: state => {
-      const drawnPrizes = state.winners.map(w => w.prize);
+    nextPrize: (state) => {
+      const drawnPrizes = state.winners.map((w) => w.prize);
       const prizeList = [];
       for (let p = 1; p <= state.prizeCount; ++p) prizeList.push(p);
-      const availablePrizeList = prizeList.filter(p => !drawnPrizes.includes(p)).reverse();
+      const availablePrizeList = prizeList
+        .filter((p) => !drawnPrizes.includes(p))
+        .reverse();
       return availablePrizeList.length > 0 ? availablePrizeList[0] : null;
-    }
+    },
   },
   mutations: {
     updateAnniversary(state, anniversary) {
@@ -41,6 +47,9 @@ export default new Vuex.Store({
     updateWinners(state, winners) {
       state.winners = winners;
     },
+    updateExcludedGuests(state, excludedGuests) {
+      state.excludedGuests = excludedGuests;
+    },
     setInitialized(state) {
       state.initialized = true;
     },
@@ -48,69 +57,60 @@ export default new Vuex.Store({
       state.winners.push(winner);
     },
     redrawWinner(state, winner) {
-      state.winners = state.winners.filter(w => w.prize != winner.prize);
-    }
+      state.winners = state.winners.filter((w) => w.prize != winner.prize);
+    },
+    addExcludedGuest(state, payload) {
+      state.excludedGuests.push({
+        guest: payload.guest,
+        prize: payload.prize,
+      });
+    },
   },
   actions: {
-    async loadOrInitializeStates({
-      commit,
-      // state,
-      // getters
-    }) {
-      commit('updateAnniversary', await localforage.getItem('anniversary'));
-      commit('updatePrizeCount', await localforage.getItem('prizeCount'));
-      commit('updateGuests', await localforage.getItem('guests') ?? []);
-
-      /* let fakeWinners = [];
-      for (let i = state.prizeCount; i >= 20; --i) {
-        fakeWinners.push({
-          prize: i,
-          guest: getters.guestsCanBeDrawn[Math.floor(Math.random() * getters.guestsCanBeDrawn.length)]
-        })
-        commit('updateWinners', fakeWinners);
-      } */
-
-      commit('updateWinners', await localforage.getItem('winners') ?? []);
-      commit('setInitialized');
+    async loadOrInitializeStates({ commit }) {
+      commit("updateAnniversary", await localforage.getItem("anniversary"));
+      commit("updatePrizeCount", await localforage.getItem("prizeCount"));
+      commit("updateGuests", (await localforage.getItem("guests")) ?? []);
+      commit(
+        "updateExcludedGuests",
+        (await localforage.getItem("excludedGuests")) ?? []
+      );
+      commit("updateWinners", (await localforage.getItem("winners")) ?? []);
+      commit("setInitialized");
     },
-    async updateAnniversary({
-      commit
-    }, anniversary) {
-      await localforage.setItem('anniversary', anniversary)
-      commit('updateAnniversary', anniversary);
+    async updateAnniversary({ commit }, anniversary) {
+      await localforage.setItem("anniversary", anniversary);
+      commit("updateAnniversary", anniversary);
     },
-    async updatePrizeCount({
-      commit
-    }, prizeCount) {
-      await localforage.setItem('prizeCount', prizeCount)
-      commit('updatePrizeCount', prizeCount);
+    async updatePrizeCount({ commit }, prizeCount) {
+      await localforage.setItem("prizeCount", prizeCount);
+      commit("updatePrizeCount", prizeCount);
     },
-    async updateGuests({
-      commit
-    }, guests) {
-      await localforage.setItem('guests', guests)
-      commit('updateGuests', guests);
+    async updateGuests({ commit }, guests) {
+      await localforage.setItem("guests", guests);
+      commit("updateGuests", guests);
     },
-    async updateWinners({
-      commit
-    }, winners) {
-      await localforage.setItem('winners', winners)
-      commit('updateWinners', winners);
+    async updateWinners({ commit }, winners) {
+      await localforage.setItem("winners", winners);
+      commit("updateWinners", winners);
     },
-    async newWinner({
-      commit,
-      state
-    }, winner) {
-      commit('newWinner', winner);
-      await localforage.setItem('winners', state.winners)
+    async updateExcludedGuests({ commit }, excludedGuests) {
+      await localforage.setItem("excludedGuests", excludedGuests);
+      commit("updateExcludedGuests", excludedGuests);
     },
-    async redrawWinner({
-      commit,
-      state
-    }, winner) {
-      commit('redrawWinner', winner);
-      await localforage.setItem('winners', state.winners)
-    }
+    async newWinner({ commit, state }, winner) {
+      commit("newWinner", winner);
+      await localforage.setItem("winners", state.winners);
+    },
+    async redrawWinner({ commit, state }, winner) {
+      commit("redrawWinner", winner);
+      await localforage.setItem("winners", state.winners);
+      commit("addExcludedGuest", {
+        guest: winner.guest,
+        prize: winner.prize,
+      });
+      await localforage.setItem("excludedGuests", state.excludedGuests);
+    },
   },
-  modules: {}
+  modules: {},
 });

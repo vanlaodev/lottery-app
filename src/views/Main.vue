@@ -1,6 +1,6 @@
 <template>
   <v-app class="fill-height">
-    <v-app-bar color="primary" app dark>
+    <v-app-bar color="primary" flat app dark>
       <v-app-bar-title>郵電局{{ anniversary }}週年晚宴抽獎程式</v-app-bar-title>
       <v-spacer></v-spacer>
       <v-menu offset-y>
@@ -24,7 +24,7 @@
           <v-col class="fill-height" cols="5">
             <winner-list></winner-list>
           </v-col>
-          <v-col class="fill-height">
+          <v-col class="fill-height" cols="7">
             <lottery></lottery>
           </v-col>
         </v-row>
@@ -102,7 +102,6 @@ export default {
   },
   mounted() {
     window.readyConfetti("confetti-canvas");
-    window.showConfetti(0); // TODO: workaround
     this.updateClock();
     this.startUpdateClockInterval();
     if (this.needSetup) {

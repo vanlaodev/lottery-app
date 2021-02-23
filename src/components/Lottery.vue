@@ -5,46 +5,50 @@
       >{{ title }}</v-card-title
     >
     <v-divider></v-divider>
-    <v-container fluid class="flex-grow-1">
-      <v-row class="fill-height">
-        <v-col cols="12" class="text-center d-flex flex-column">
-          <div class="mt-auto mb-auto">
-            <div v-if="drawingGuest">
-              <div class="text-h1">{{ drawingGuest.staffNo }}</div>
-              <div class="text-h1">
-                {{
-                  drawingGuest.nameZh
-                    ? drawingGuest.nameZh
-                    : drawingGuest.nameEn
-                }}
-              </div>
-            </div>
-            <div v-if="lastWinner && (state == 'ready' || state == 'ended')">
-              <div class="text-h3">{{ lastWinner.prize }}號獎得主</div>
-              <div class="text-h1 mt-3">{{ lastWinner.guest.staffNo }}</div>
-              <div class="text-h1 mt-3">
-                {{
-                  lastWinner.guest.nameZh
-                    ? lastWinner.guest.nameZh
-                    : lastWinner.guest.nameEn
-                }}
-              </div>
-            </div>
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
+    <div
+      class="flex-grow-1 d-flex flex-column overflow-y-auto"
+      style="justify-content: center; align-items: center"
+    >
+      <div v-if="drawingGuest" class="text-center">
+        <div class="text-h2 mt-3">{{ drawingGuest.staffNo }}</div>
+        <div class="text-h2 mt-3">
+          {{ drawingGuest.nameZh ? drawingGuest.nameZh : drawingGuest.nameEn }}
+        </div>
+      </div>
+      <div
+        v-else-if="lastWinner && (state == 'ready' || state == 'ended')"
+        class="text-center"
+      >
+        <div class="text-h3 mt-3">{{ lastWinner.prize }}號獎得主</div>
+        <div class="text-h2 mt-3">{{ lastWinner.guest.staffNo }}</div>
+        <div class="text-h2 mt-3">
+          {{
+            lastWinner.guest.nameZh
+              ? lastWinner.guest.nameZh
+              : lastWinner.guest.nameEn
+          }}
+        </div>
+      </div>
+      <div v-else>
+        <v-img
+          contain
+          max-width="450"
+          :src="require('@/assets/colorful-gifts.png')"
+        >
+        </v-img>
+      </div>
+    </div>
     <v-btn
       id="btn-draw"
       tile
       block
-      :class="[{ 'text-h3': true }, state]"
-      style="flex: 0 0 130px"
+      :class="[{ 'text-h4': true }, state]"
+      style="flex: 0 0 120px"
       color="red"
       @click="startDraw"
-      :disabled="state != 'ready'"
-      v-if="state == 'ready' || state == 'drawing'"
-      >{{ drawBtnText }}</v-btn
+      :disabled="drawBtnDisabled"
+      v-if="drawBtnVisible"
+      ><span>{{ drawBtnText }}</span></v-btn
     >
   </v-card>
 </template>
@@ -78,12 +82,21 @@ export default {
     };
   },
   beforeDestroy() {
+    this.stopConfetti();
+    this.unwatchStore();
     this.cancelDelayUnsetLastWinner();
-    if ("stopConfetti" in window) {
-      window.stopConfetti();
-    }
   },
   methods: {
+    showConfetti(duration) {
+      if ("showConfetti" in window) {
+        window.showConfetti(duration);
+      }
+    },
+    stopConfetti() {
+      if ("stopConfetti" in window) {
+        window.stopConfetti();
+      }
+    },
     startDelayUnsetLastWinner(delay) {
       this.cancelDelayUnsetLastWinner();
       this.hndDelayUnsetLastWinner = setTimeout(() => {
@@ -97,30 +110,31 @@ export default {
       }
     },
     async startDraw() {
+      this.stopConfetti();
       this.cancelDelayUnsetLastWinner();
       this.lastWinner = null;
-      this.state = "drawing";
-      for (let i = 0; i < 200; ++i) {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 10);
-        });
-        this.drawingGuest = this.guestsCanBeDrawn[
-          Math.floor(Math.random() * this.guestsCanBeDrawn.length)
-        ];
-      }
-      if ("showConfetti" in window) {
-        window.showConfetti(this.nextPrize == 1 ? 15000 : 3000);
-      }
-      const newWinner = {
-        prize: this.nextPrize,
-        guest: this.drawingGuest,
-      };
-      await this.newWinner(newWinner);
-      this.lastWinner = newWinner;
-      this.drawingGuest = null;
-      this.state = this.canDraw ? "ready" : "ended";
-      if (this.state == "ready") {
-        this.startDelayUnsetLastWinner(15000);
+      if (this.nextPrize && this.guestsCanBeDrawn) {
+        this.state = "drawing";
+        for (let i = 0; i < 200; ++i) {
+          await new Promise((resolve) => {
+            setTimeout(resolve, 10);
+          });
+          this.drawingGuest = this.guestsCanBeDrawn[
+            Math.floor(Math.random() * this.guestsCanBeDrawn.length)
+          ];
+        }
+        this.showConfetti(this.nextPrize == 1 ? 15000 : 5000);
+        const newWinner = {
+          prize: this.nextPrize,
+          guest: this.drawingGuest,
+        };
+        await this.newWinner(newWinner);
+        this.lastWinner = newWinner;
+        this.drawingGuest = null;
+        this.state = this.canDraw ? "ready" : "ended";
+        if (this.state == "ready") {
+          this.startDelayUnsetLastWinner(15000);
+        }
       }
     },
     ...mapActions(["newWinner"]),
@@ -133,6 +147,16 @@ export default {
     },
   },
   computed: {
+    drawBtnVisible: function () {
+      return this.state == "ready" || this.state == "drawing";
+    },
+    drawBtnDisabled: function () {
+      return (
+        this.state != "ready" ||
+        this.nextPrize == null ||
+        !(this.guestsCanBeDrawn && this.guestsCanBeDrawn.length > 0)
+      );
+    },
     canDraw: function () {
       return this.nextPrize != null;
     },
@@ -143,7 +167,7 @@ export default {
         case "drawing":
           return "抽獎中 DRAWING";
         case "ended":
-          return "完成抽獎 FINISHED";
+          return "抽獎已完成 FINISHED";
         default:
           return "";
       }
@@ -162,6 +186,14 @@ export default {
   },
   mounted() {
     this.state = this.canDraw ? "ready" : "ended";
+    this.unwatchStore = this.$store.watch(
+      (state) => state.excludedGuests,
+      () => {
+        this.cancelDelayUnsetLastWinner();
+        this.lastWinner = null;
+        this.stopConfetti();
+      }
+    );
   },
 };
 </script>

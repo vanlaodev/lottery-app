@@ -1,3 +1,9 @@
 <template>
-  <div class="pa-3">Application starting up please wait...</div>
+  <v-app>
+    <v-main>
+      <v-container fluid>
+        <p>Application starting up please wait...</p>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>

@@ -1,5 +1,7 @@
 <template>
-  <router-view></router-view>
+  <transition>
+    <router-view></router-view>
+  </transition>
 </template>
 
 <style>
@@ -58,6 +60,9 @@ export default {
   },
   created() {
     this.loadOrInitializeStates();
+  },
+  mounted() {
+    this.$router.replace({ path: "/" });
   },
 };
 </script>

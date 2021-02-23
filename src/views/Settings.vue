@@ -17,7 +17,7 @@
         >
         <v-card>
           <v-card-title>抽獎設定</v-card-title>
-          <v-form v-model="formValid">
+          <v-form ref="form" v-model="formValid">
             <v-container fluid>
               <v-text-field
                 v-model="anniversary"
@@ -29,16 +29,23 @@
                 required
               ></v-text-field>
               <v-text-field
+                class="mt-2"
                 v-model="prizeCount"
                 label="獎品數"
                 :rules="[
                   (v) => !!v || '必須輸入獎品數',
                   (v) => v > 0 || '無效的獎品數',
+                  (v) =>
+                    guests.length == 0 ||
+                    parseInt(v) <= guests.length ||
+                    '獎品數不能比抽獎名單多',
                 ]"
                 required
               ></v-text-field>
-              <div class="mt-1">
-                <v-btn class="mr-2 mb-2" @click="importGuestList" large>匯入抽獎名單</v-btn>
+              <div class="mt-3">
+                <v-btn class="mr-2 mb-2" @click="importGuestList" large
+                  >匯入抽獎名單</v-btn
+                >
                 <v-btn
                   large
                   class="mb-2"
@@ -90,10 +97,13 @@ export default {
   },
   computed: {
     canSubmit() {
-      return this.formValid && this.guests.length > 0;
+      return this.formValid && this.guests.length >= this.prizeCount;
     },
   },
   methods: {
+    validateForm() {
+      this.$refs.form.validate();
+    },
     previewImportedGuestList() {
       this.showGuestListDialog = true;
     },
@@ -108,6 +118,7 @@ export default {
       ) {
         const guests = parseGuestList(openAndReadFileResult.data);
         this.guests = guests;
+        this.validateForm();
       }
       // TODO: show error
     },
@@ -116,6 +127,7 @@ export default {
         await this.updateAnniversary(parseInt(this.anniversary));
         await this.updatePrizeCount(parseInt(this.prizeCount));
         await this.updateGuests(this.guests);
+        await this.updateExcludedGuests([]);
         await this.updateWinners([]);
         this.$router.replace({ path: "/main" });
       }
@@ -124,6 +136,7 @@ export default {
       "updateAnniversary",
       "updatePrizeCount",
       "updateGuests",
+      "updateExcludedGuests",
       "updateWinners",
     ]),
   },

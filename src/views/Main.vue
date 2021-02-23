@@ -1,7 +1,11 @@
 <template>
   <v-app id="view-root" class="fill-height">
     <v-app-bar flat app dark height="80" color="transparent">
-      <img class="mr-2" :src="require('@/assets/ctt-logo-only.png')" height="70" />
+      <img
+        class="mr-2"
+        :src="require('@/assets/ctt-logo-only.png')"
+        height="70"
+      />
       <span class="text-h3">{{ eventTitle }}</span>
       <v-spacer></v-spacer>
       <v-menu offset-y>
@@ -11,9 +15,9 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item @click="navToManagement">
+          <v-list-item @click="navToSettings">
             <v-list-item-content>
-              <v-list-item-title>管理</v-list-item-title>
+              <v-list-item-title class="text-h5">設定</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -88,8 +92,8 @@ export default {
     navToSettings() {
       this.$router.push({ path: "/settings" });
     },
-    navToManagement() {
-      this.$router.push({ path: "/mgmt" });
+    navToSetup() {
+      this.$router.push({ path: "/setup" });
     },
     updateClock() {
       this.clock = new Date();
@@ -110,7 +114,7 @@ export default {
     this.updateClock();
     this.startUpdateClockInterval();
     if (this.needSetup) {
-      this.navToSettings();
+      this.navToSetup();
     }
   },
   beforeDestroy() {

@@ -1,5 +1,9 @@
 <template>
-  <v-card outlined class="fill-height d-flex flex-column orange darken-1">
+  <v-card
+    id="lottery-root"
+    outlined
+    class="fill-height d-flex flex-column orange darken-1"
+  >
     <v-card-title class="text-h4 amber darken-4"
       ><v-icon large class="mr-2">mdi-party-popper</v-icon
       >{{ title }}</v-card-title
@@ -8,19 +12,19 @@
       class="flex-grow-1 d-flex flex-column overflow-y-auto"
       style="justify-content: center; align-items: center"
     >
-      <div v-if="drawingGuest" class="text-center">
-        <div class="text-h2 mt-3">{{ drawingGuest.staffNo }}</div>
-        <div class="text-h2 mt-3">
+      <div v-if="drawingGuest" class="text-center drawing-guest-text">
+        <div class="text-h1 mt-3">{{ drawingGuest.staffNo }}</div>
+        <div class="text-h1 mt-3">
           {{ drawingGuest.nameZh ? drawingGuest.nameZh : drawingGuest.nameEn }}
         </div>
       </div>
       <div
         v-else-if="lastWinner && (state == 'ready' || state == 'ended')"
-        class="text-center"
+        class="text-center winner-text"
       >
         <div class="text-h3 mt-3">{{ lastWinner.prize }}號獎得主</div>
-        <div class="text-h2 mt-3">{{ lastWinner.guest.staffNo }}</div>
-        <div class="text-h2 mt-3">
+        <div class="text-h1 mt-3">{{ lastWinner.guest.staffNo }}</div>
+        <div class="text-h1 mt-3">
           {{
             lastWinner.guest.nameZh
               ? lastWinner.guest.nameZh
@@ -64,6 +68,23 @@
 
 #btn-draw.ready {
   animation: animated-border 1.2s infinite;
+}
+
+#lottery-root {
+  background: rgb(245, 219, 143);
+  background: radial-gradient(
+    circle,
+    rgba(245, 219, 143, 1) 3%,
+    rgba(233, 150, 32, 1) 100%
+  );
+}
+
+.winner-text {
+  text-shadow: 2px 2px 0px rgba(201, 226, 240, 1);
+}
+
+.drawing-guest-text {
+  text-shadow: 2px 2px 0px rgba(201, 226, 240, 1);
 }
 </style>
 
@@ -147,7 +168,8 @@ export default {
   },
   computed: {
     drawBtnVisible: function () {
-      return this.state == "ready" || this.state == "drawing";
+      // return this.state == "ready" || this.state == "drawing";
+      return true;
     },
     drawBtnDisabled: function () {
       return (
@@ -162,11 +184,11 @@ export default {
     drawBtnText: function () {
       switch (this.state) {
         case "ready":
-          return "抽獎 START";
+          return "開始抽獎 START";
         case "drawing":
           return "抽獎中 DRAWING";
         case "ended":
-          return "抽獎已完成 FINISHED";
+          return "抽獎結束 FINISHED";
         default:
           return "";
       }

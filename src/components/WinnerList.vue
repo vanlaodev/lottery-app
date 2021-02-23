@@ -7,10 +7,10 @@
       <div v-for="winner in sortedWinners" :key="winner.prize">
         <v-list-item two-line>
           <v-list-item-content>
-            <v-list-item-title class="text-h6"
+            <v-list-item-title class="text-h5"
               >獎品 #{{ winner.prize }}</v-list-item-title
             >
-            <v-list-item-subtitle class="text-h5 text-wrap"
+            <v-list-item-subtitle class="text-h4 text-wrap"
               >{{ winner.guest.staffNo }} -
               {{
                 winner.guest.nameZh ? winner.guest.nameZh : winner.guest.nameEn
@@ -27,7 +27,9 @@
               <v-list flat>
                 <v-list-item @click="redrawWinner(winner)">
                   <v-list-item-content>
-                    <v-list-item-title>重抽</v-list-item-title>
+                    <v-list-item-title class="text-h5"
+                      >重抽{{ winner.prize }}號獎品</v-list-item-title
+                    >
                   </v-list-item-content>
                 </v-list-item>
               </v-list>

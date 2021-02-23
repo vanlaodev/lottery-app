@@ -1,73 +1,29 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-app-bar-nav-icon
-        v-if="!firstTimeSetup"
-        @click="$router.replace({ path: '/mgmt' })"
+      <v-app-bar-nav-icon @click="$router.replace('/main')"
         ><v-icon>mdi-arrow-left</v-icon></v-app-bar-nav-icon
       >
-      <v-app-bar-title>{{
-        firstTimeSetup ? "首次設置" : "設置"
-      }}</v-app-bar-title>
+      <v-app-bar-title>設定</v-app-bar-title>
     </v-app-bar>
     <v-main>
       <v-container fluid>
-        <v-alert v-if="!firstTimeSetup" type="warning"
-          >當您提交後所有設定及記錄將會被重置及無法還原</v-alert
-        >
-        <v-card>
-          <v-card-title>抽獎設定</v-card-title>
-          <v-form ref="form" v-model="formValid">
-            <v-container fluid>
-              <v-text-field
-                v-model="anniversary"
-                label="週年數"
-                :rules="[
-                  (v) => !!v || '必須輸入週年數',
-                  (v) => v > 0 || '無效的週年數',
-                ]"
-                required
-              ></v-text-field>
-              <v-text-field
-                class="mt-2"
-                v-model="prizeCount"
-                label="獎品數"
-                :rules="[
-                  (v) => !!v || '必須輸入獎品數',
-                  (v) => v > 0 || '無效的獎品數',
-                  (v) =>
-                    guests.length == 0 ||
-                    parseInt(v) <= guests.length ||
-                    '獎品數不能比抽獎名單多',
-                ]"
-                required
-              ></v-text-field>
-              <div class="mt-3">
-                <v-btn class="mr-2 mb-2" @click="importGuestList" large
-                  >匯入抽獎名單</v-btn
-                >
-                <v-btn
-                  large
-                  class="mb-2"
-                  color="info"
-                  @click="previewImportedGuestList"
-                  v-if="guests.length > 0"
-                  >預覽已匯入抽獎名單(共{{ guests.length }}人)</v-btn
-                >
-              </div>
-            </v-container>
-          </v-form>
-          <v-card-actions>
-            <v-btn
-              class="ml-1"
-              :disabled="!canSubmit"
-              large
-              color="success"
-              @click="submit"
-              >提交</v-btn
-            ></v-card-actions
-          ></v-card
-        >
+        <!-- <v-card dark color="info" class="mb-3" @click="exportData"
+          ><v-card-title>匯出</v-card-title>
+          <v-card-subtitle>抽獎記錄</v-card-subtitle></v-card
+        > -->
+        <v-card dark color="green" class="mb-3" @click="showCurrentGuestList"
+          ><v-card-title>顯示當前抽獎名單 ({{ guests.length }}人)</v-card-title>
+        </v-card>
+        <v-card dark color="red" class="mb-3" @click="navToSetup"
+          ><v-card-title>重新設置</v-card-title>
+          <v-card-subtitle
+            >包括週年數、抽奬名單、獎品資料等，原有設定和記錄將會被清除及覆蓋</v-card-subtitle
+          >
+        </v-card>
+        <v-card dark class="mb-3" @click="exitApp"
+          ><v-card-title>退出程式</v-card-title>
+        </v-card>
       </v-container>
     </v-main>
     <guest-list-dialog
@@ -78,72 +34,33 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
-import { openAndReadFile } from "../utils/native-client";
-import { parseGuestList } from "../utils/parse-guest-list";
+import { exitApp } from "../utils/native-client";
+import { mapState } from "vuex";
 import GuestListDialog from "../components/GuestListDialog";
 
 export default {
   components: { GuestListDialog },
   data() {
     return {
-      anniversary: null,
-      prizeCount: null,
-      formValid: null,
-      firstTimeSetup: null,
-      guests: [],
       showGuestListDialog: false,
     };
   },
   computed: {
-    canSubmit() {
-      return this.formValid && this.guests.length >= this.prizeCount;
-    },
+    ...mapState(["guests"]),
   },
   methods: {
-    validateForm() {
-      this.$refs.form.validate();
+    exportData() {
+      // TODO
     },
-    previewImportedGuestList() {
+    navToSetup() {
+      this.$router.push({ path: "/setup" });
+    },
+    exitApp() {
+      exitApp();
+    },
+    showCurrentGuestList() {
       this.showGuestListDialog = true;
     },
-    importGuestList() {
-      const openAndReadFileResult = openAndReadFile([
-        { name: "Excel", extensions: ["xls", "xlsx"] },
-      ]);
-      if (
-        !openAndReadFileResult.error &&
-        !openAndReadFileResult.cancel &&
-        openAndReadFileResult.data
-      ) {
-        const guests = parseGuestList(openAndReadFileResult.data);
-        this.guests = guests;
-        this.validateForm();
-      }
-      // TODO: show error
-    },
-    async submit() {
-      if (this.canSubmit) {
-        await this.updateAnniversary(parseInt(this.anniversary));
-        await this.updatePrizeCount(parseInt(this.prizeCount));
-        await this.updateGuests(this.guests);
-        await this.updateExcludedGuests([]);
-        await this.updateWinners([]);
-        this.$router.replace({ path: "/main" });
-      }
-    },
-    ...mapActions([
-      "updateAnniversary",
-      "updatePrizeCount",
-      "updateGuests",
-      "updateExcludedGuests",
-      "updateWinners",
-    ]),
-  },
-  mounted() {
-    this.prizeCount = this.$store.state.prizeCount;
-    this.anniversary = this.$store.state.anniversary;
-    this.firstTimeSetup = this.$store.getters.needSetup;
   },
 };
 </script>

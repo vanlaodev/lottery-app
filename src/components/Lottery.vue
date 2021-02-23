@@ -9,8 +9,7 @@
       >{{ title }}</v-card-title
     >
     <div
-      class="flex-grow-1 d-flex flex-column overflow-y-auto"
-      style="justify-content: center; align-items: center"
+      class="flex-grow-1 d-flex flex-column overflow-y-auto justify-center align-center"
     >
       <div v-if="drawingGuest" class="text-center drawing-guest-text">
         <div class="text-h1 mt-3">{{ drawingGuest.staffNo }}</div>
@@ -89,7 +88,7 @@
 </style>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions, mapMutations } from "vuex";
 
 export default {
   name: "Lottery",
@@ -107,6 +106,7 @@ export default {
     this.cancelDelayUnsetLastWinner();
   },
   methods: {
+    ...mapMutations(["updateMainOverlay"]),
     showConfetti(duration) {
       if ("showConfetti" in window) {
         window.showConfetti(duration);
@@ -133,26 +133,29 @@ export default {
       this.stopConfetti();
       this.cancelDelayUnsetLastWinner();
       this.lastWinner = null;
-      if (this.nextPrize && this.guestsCanBeDrawn) {
+      const prize = this.nextPrize;
+      if (prize != null && this.randomSortedGuestsCanBeDrawn) {
         this.state = "drawing";
-        for (let i = 0; i < 200; ++i) {
+        this.updateMainOverlay(true);
+        for (let i = 0; i < 250; ++i) {
           await new Promise((resolve) => {
             setTimeout(resolve, 10);
           });
-          this.drawingGuest = this.guestsCanBeDrawn[
-            Math.floor(Math.random() * this.guestsCanBeDrawn.length)
+          this.drawingGuest = this.randomSortedGuestsCanBeDrawn[
+            Math.floor(Math.random() * this.randomSortedGuestsCanBeDrawn.length)
           ];
         }
-        this.showConfetti(this.nextPrize == 1 ? 15000 : 3500);
+        this.updateMainOverlay(false);
+        this.showConfetti(prize == 1 ? 15000 : 3500);
         const newWinner = {
-          prize: this.nextPrize,
+          prize: prize,
           guest: this.drawingGuest,
         };
         await this.newWinner(newWinner);
         this.lastWinner = newWinner;
         this.drawingGuest = null;
         this.state = this.canDraw ? "ready" : "ended";
-        if (this.state == "ready") {
+        if (this.state == "ready" || this.prize != 1) {
           this.startDelayUnsetLastWinner(15000);
         }
       }
@@ -202,6 +205,11 @@ export default {
         : this.state == "drawing"
         ? `正在抽取${this.nextPrize}號獎品`
         : `即將抽出${this.nextPrize}號獎品`;
+    },
+    randomSortedGuestsCanBeDrawn: function () {
+      return this.guestsCanBeDrawn == null
+        ? null
+        : this.guestsCanBeDrawn.map((x) => x).sort(() => 0.5 - Math.random());
     },
     ...mapGetters(["nextPrize", "guestsCanBeDrawn"]),
   },

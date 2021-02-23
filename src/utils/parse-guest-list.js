@@ -10,12 +10,12 @@ function parseGuestList(data) {
     const mapped = converted.map(r => {
         return {
             rowNum: r.__rowNum__,
-            dept: r['部門'],
-            nameEn: r['英文姓名'],
-            staffNo: r['員工編號'],
-            nameZh: r['中文姓名']
+            dept: r['部門'] + '',
+            nameEn: r['英文姓名'] + '',
+            staffNo: r['員工編號'] + '',
+            nameZh: r['中文姓名'] + ''
         };
-    })
+    }).filter(r => r.staffNo != null && r.staffNo.length > 0);
     return mapped;
 }
 

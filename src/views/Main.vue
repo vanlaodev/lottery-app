@@ -41,6 +41,7 @@
       </v-col>
     </v-footer>
     <canvas id="confetti-canvas"></canvas>
+    <v-overlay :value="mainOverlay" z-index="2500"></v-overlay>
   </v-app>
 </template>
 
@@ -73,7 +74,7 @@ body {
 </style>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import WinnerList from "../components/WinnerList";
 import Lottery from "../components/Lottery";
 
@@ -86,6 +87,7 @@ export default {
     };
   },
   computed: {
+    ...mapState(["mainOverlay"]),
     ...mapGetters(["needSetup", "eventTitle"]),
   },
   methods: {

@@ -7,7 +7,7 @@
         ><v-icon>mdi-arrow-left</v-icon></v-app-bar-nav-icon
       >
       <v-app-bar-title>{{
-        firstTimeSetup ? "首次設置" : "設置"
+        firstTimeSetup ? "首次設置" : "重新設置"
       }}</v-app-bar-title>
     </v-app-bar>
     <v-main>
@@ -64,7 +64,7 @@
               large
               color="success"
               @click="submit"
-              >提交</v-btn
+              >確認</v-btn
             ></v-card-actions
           ></v-card
         >
@@ -120,25 +120,18 @@ export default {
         this.guests = guests;
         this.validateForm();
       }
-      // TODO: show error
     },
     async submit() {
       if (this.canSubmit) {
-        await this.updateAnniversary(parseInt(this.anniversary));
-        await this.updatePrizeCount(parseInt(this.prizeCount));
-        await this.updateGuests(this.guests);
-        await this.updateExcludedGuests([]);
-        await this.updateWinners([]);
+        await this.setup({
+          anniversary: parseInt(this.anniversary),
+          prizeCount: parseInt(this.prizeCount),
+          guests: this.guests,
+        });
         this.$router.replace({ path: "/main" });
       }
     },
-    ...mapActions([
-      "updateAnniversary",
-      "updatePrizeCount",
-      "updateGuests",
-      "updateExcludedGuests",
-      "updateWinners",
-    ]),
+    ...mapActions(["setup"]),
   },
   mounted() {
     this.prizeCount = this.$store.state.prizeCount;

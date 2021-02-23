@@ -7,11 +7,7 @@
         </v-btn>
         <v-toolbar-title>抽獎名單</v-toolbar-title>
       </v-toolbar>
-      <v-data-table
-        :headers="headers"
-        :items="guests"
-        item-key="rowNum"
-      >
+      <v-data-table :headers="headers" :items="guests" item-key="rowNum">
       </v-data-table>
     </v-card>
   </v-dialog>

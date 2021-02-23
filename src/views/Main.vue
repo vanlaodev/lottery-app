@@ -1,7 +1,8 @@
 <template>
-  <v-app class="fill-height">
-    <v-app-bar color="primary" flat app dark>
-      <v-app-bar-title>郵電局{{ anniversary }}週年晚宴抽獎程式</v-app-bar-title>
+  <v-app id="view-root" class="fill-height">
+    <v-app-bar flat app dark height="80" color="transparent">
+      <img class="mr-2" :src="require('@/assets/ctt-logo-only.png')" height="70" />
+      <span class="text-h3">{{ eventTitle }}</span>
       <v-spacer></v-spacer>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
@@ -19,12 +20,12 @@
       </v-menu>
     </v-app-bar>
     <v-main class="fill-height">
-      <v-container class="fill-height" fluid>
+      <v-container class="fill-height pt-0" fluid>
         <v-row class="fill-height">
-          <v-col class="fill-height" cols="5">
+          <v-col class="fill-height pr-2" cols="4">
             <winner-list></winner-list>
           </v-col>
-          <v-col class="fill-height" cols="7">
+          <v-col class="fill-height pl-2" cols="8">
             <lottery></lottery>
           </v-col>
         </v-row>
@@ -60,10 +61,15 @@ body {
   border: 0px solid #000;
   pointer-events: none;
 }
+
+#view-root {
+  background: #020316;
+  background: -webkit-linear-gradient(to left, #242424, #09090a);
+}
 </style>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 import WinnerList from "../components/WinnerList";
 import Lottery from "../components/Lottery";
 
@@ -76,8 +82,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["anniversary", "winners"]),
-    ...mapGetters(["needSetup"]),
+    ...mapGetters(["needSetup", "eventTitle"]),
   },
   methods: {
     navToSettings() {

@@ -14,6 +14,9 @@ export default new Vuex.Store({
     winners: [],
   },
   getters: {
+    eventTitle: (state)=>{
+      return `郵電局${ state.anniversary }週年晚宴抽獎環節`;
+    },
     needSetup: (state) => {
       return !state.anniversary || !state.prizeCount || !state.guests;
     },

@@ -13,7 +13,7 @@
     <v-main>
       <v-container fluid>
         <v-alert v-if="!firstTimeSetup" type="warning"
-          >當您提交後所有設定及記錄將會被重置及無法還原，建議您在重置前先使用匯出功能匯出相關資料</v-alert
+          >當您提交後所有設定及記錄將會被重置及無法還原</v-alert
         >
         <v-card>
           <v-card-title>抽獎設定</v-card-title>

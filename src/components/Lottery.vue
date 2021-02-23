@@ -1,10 +1,9 @@
 <template>
-  <v-card outlined class="fill-height d-flex flex-column">
-    <v-card-title class="text-h4 success"
+  <v-card outlined class="fill-height d-flex flex-column orange darken-1">
+    <v-card-title class="text-h4 amber darken-4"
       ><v-icon large class="mr-2">mdi-party-popper</v-icon
       >{{ title }}</v-card-title
     >
-    <v-divider></v-divider>
     <div
       class="flex-grow-1 d-flex flex-column overflow-y-auto"
       style="justify-content: center; align-items: center"
@@ -32,7 +31,7 @@
       <div v-else>
         <v-img
           contain
-          max-width="450"
+          max-width="400"
           :src="require('@/assets/colorful-gifts.png')"
         >
         </v-img>
@@ -42,8 +41,8 @@
       id="btn-draw"
       tile
       block
-      :class="[{ 'text-h4': true }, state]"
-      style="flex: 0 0 120px"
+      :class="[{ 'text-h3': true, 'darken-2': true }, state]"
+      style="flex: 0 0 140px"
       color="red"
       @click="startDraw"
       :disabled="drawBtnDisabled"
@@ -123,7 +122,7 @@ export default {
             Math.floor(Math.random() * this.guestsCanBeDrawn.length)
           ];
         }
-        this.showConfetti(this.nextPrize == 1 ? 15000 : 5000);
+        this.showConfetti(this.nextPrize == 1 ? 15000 : 3500);
         const newWinner = {
           prize: this.nextPrize,
           guest: this.drawingGuest,

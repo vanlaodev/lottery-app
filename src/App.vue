@@ -62,7 +62,7 @@ export default {
     this.loadOrInitializeStates();
   },
   mounted() {
-    this.$router.replace({ path: "/" });
+    if (this.$route.path !== "/") this.$router.replace({ path: "/" });
   },
 };
 </script>

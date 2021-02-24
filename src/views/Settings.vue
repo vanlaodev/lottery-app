@@ -48,7 +48,7 @@ import {
   importDataFromFile,
   showSaveFileDialogAndExportData,
 } from "../utils/native-client";
-import { mapState, mapGetters, mapActions } from "vuex";
+import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import GuestListDialog from "../components/GuestListDialog";
 
 export default {
@@ -63,16 +63,40 @@ export default {
     ...mapGetters(["saveData"]),
   },
   methods: {
-    ...mapActions(["loadSaveData"]),
+    ...mapMutations(["updateGlobalSnackbar"]),
+    ...mapActions(["loadSaveData", "showGlobalErrorSnackbar"]),
     async importData() {
       const data = importDataFromFile();
       if (data != null) {
         await this.loadSaveData(data);
+        this.updateGlobalSnackbar({
+          show: true,
+          msg: "讀取成功",
+          timeout: 2000,
+          color: "success",
+        });
         this.$router.replace({ path: "/main" });
+      } else {
+        this.updateGlobalSnackbar({
+          show: true,
+          msg: "讀取失敗",
+          timeout: 2000,
+          color: "warning",
+        });
       }
     },
     exportData() {
-      showSaveFileDialogAndExportData(this.saveData);
+      const result = showSaveFileDialogAndExportData(this.saveData);
+      if (result.error) {
+        this.showGlobalErrorSnackbar(result.error);
+      } else if (result.success) {
+        this.updateGlobalSnackbar({
+          show: true,
+          msg: "儲存成功",
+          timeout: 2000,
+          color: "success",
+        });
+      }
     },
     navToSetup() {
       this.$router.push({ path: "/setup" });

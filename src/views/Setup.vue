@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapMutations } from "vuex";
 import { openAndReadFile } from "../utils/native-client";
 import { parseGuestList } from "../utils/parse-guest-list";
 import GuestListDialog from "../components/GuestListDialog";
@@ -101,6 +101,7 @@ export default {
     },
   },
   methods: {
+    ...mapMutations(["updateGlobalSnackbar"]),
     validateForm() {
       this.$refs.form.validate();
     },
@@ -119,6 +120,8 @@ export default {
         const guests = parseGuestList(openAndReadFileResult.data);
         this.guests = guests;
         this.validateForm();
+      } else if (openAndReadFileResult.error) {
+        this.showGlobalErrorSnackbar(openAndReadFileResult.error);
       }
     },
     async submit() {
@@ -128,10 +131,16 @@ export default {
           prizeCount: parseInt(this.prizeCount),
           guests: this.guests,
         });
+        this.updateGlobalSnackbar({
+          show: true,
+          msg: "設置成功",
+          timeout: 2000,
+          color: "success",
+        });
         this.$router.replace({ path: "/main" });
       }
     },
-    ...mapActions(["setup"]),
+    ...mapActions(["setup", "showGlobalErrorSnackbar"]),
   },
   mounted() {
     this.prizeCount = this.$store.state.prizeCount;

@@ -24,6 +24,7 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
+    title: "郵電局晚宴抽獎程式",
     width: 1280,
     height: 900,
     fullscreen: !isDevelopment,

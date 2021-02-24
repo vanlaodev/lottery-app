@@ -137,7 +137,7 @@ export default {
       if (prize != null && this.randomSortedGuestsCanBeDrawn) {
         this.state = "drawing";
         this.updateMainOverlay(true);
-        for (let i = 0; i < 250; ++i) {
+        for (let i = 0; i < 200; ++i) {
           await new Promise((resolve) => {
             setTimeout(resolve, 10);
           });

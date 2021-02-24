@@ -1,9 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import localforage from "localforage";
-import {
-  autoSaveDataToFile
-} from "../utils/native-client";
+import { autoSaveDataToFile } from "../utils/native-client";
 
 Vue.use(Vuex);
 
@@ -16,11 +14,12 @@ export default new Vuex.Store({
     excludedGuests: [], // mainly for exlcude the redrawn guest
     winners: [],
     mainOverlay: false,
-    logs: []
+    logs: [],
+    globalSnackbar: {},
   },
   getters: {
     eventTitle: (state) => {
-      return `郵電局${ state.anniversary }週年晚宴抽獎環節`;
+      return `郵電局${state.anniversary}週年晚宴抽獎環節`;
     },
     needSetup: (state) => {
       return !state.anniversary || !state.prizeCount || !state.guests;
@@ -28,8 +27,8 @@ export default new Vuex.Store({
     guestsCanBeDrawn: (state) => {
       return state.guests.filter(
         (x) =>
-        !state.winners.map((w) => w.guest.staffNo).includes(x.staffNo) &&
-        !state.excludedGuests.map((w) => w.guest.staffNo).includes(x.staffNo)
+          !state.winners.map((w) => w.guest.staffNo).includes(x.staffNo) &&
+          !state.excludedGuests.map((w) => w.guest.staffNo).includes(x.staffNo)
       );
     },
     nextPrize: (state) => {
@@ -48,9 +47,9 @@ export default new Vuex.Store({
         guests: state.guests,
         excludedGuests: state.excludedGuests,
         winners: state.winners,
-        logs: state.logs
+        logs: state.logs,
       };
-    }
+    },
   },
   mutations: {
     updateAnniversary(state, anniversary) {
@@ -89,32 +88,37 @@ export default new Vuex.Store({
     updateMainOverlay(state, show) {
       state.mainOverlay = show;
     },
+    updateGlobalSnackbar(state, globalSnackbar) {
+      state.globalSnackbar = globalSnackbar;
+    },
     appendLog(state, msg) {
       state.logs.push({
         msg: msg,
-        time: new Date
-      })
+        time: new Date(),
+      });
     },
     clearLogs(state) {
       state.logs = [];
-    }
+    },
   },
   actions: {
-    async loadSaveData({
-      dispatch
-    }, data) {
+    showGlobalErrorSnackbar({ commit }, error) {
+      commit("updateGlobalSnackbar", {
+        show: true,
+        msg: `發生錯誤：${error}`,
+        timeout: 30000,
+        color: "error",
+      });
+    },
+    async loadSaveData({ dispatch }, data) {
       await dispatch("updateAnniversary", data.data.anniversary);
       await dispatch("updatePrizeCount", data.data.prizeCount);
       await dispatch("updateGuests", data.data.guests ?? []);
-      await dispatch(
-        "updateExcludedGuests",
-        data.data.excludedGuests ?? []);
+      await dispatch("updateExcludedGuests", data.data.excludedGuests ?? []);
       await dispatch("updateWinners", data.data.winners ?? []);
       await dispatch("updateLogs", data.data.logs ?? []);
     },
-    async loadOrInitializeStates({
-      commit
-    }) {
+    async loadOrInitializeStates({ commit }) {
       commit("updateAnniversary", await localforage.getItem("anniversary"));
       commit("updatePrizeCount", await localforage.getItem("prizeCount"));
       commit("updateGuests", (await localforage.getItem("guests")) ?? []);
@@ -126,96 +130,80 @@ export default new Vuex.Store({
       commit("updateLogs", (await localforage.getItem("logs")) ?? []);
       commit("setInitialized");
     },
-    async updateAnniversary({
-      commit
-    }, anniversary) {
+    async updateAnniversary({ commit }, anniversary) {
       await localforage.setItem("anniversary", anniversary);
       commit("updateAnniversary", anniversary);
     },
-    async updatePrizeCount({
-      commit
-    }, prizeCount) {
+    async updatePrizeCount({ commit }, prizeCount) {
       await localforage.setItem("prizeCount", prizeCount);
       commit("updatePrizeCount", prizeCount);
     },
-    async updateGuests({
-      commit
-    }, guests) {
+    async updateGuests({ commit }, guests) {
       await localforage.setItem("guests", guests);
       commit("updateGuests", guests);
     },
-    async updateWinners({
-      commit
-    }, winners) {
+    async updateWinners({ commit }, winners) {
       await localforage.setItem("winners", winners);
       commit("updateWinners", winners);
     },
-    async updateExcludedGuests({
-      commit
-    }, excludedGuests) {
+    async updateExcludedGuests({ commit }, excludedGuests) {
       await localforage.setItem("excludedGuests", excludedGuests);
       commit("updateExcludedGuests", excludedGuests);
     },
-    async newWinner({
-      commit,
-      state,
-      dispatch
-    }, winner) {
+    async newWinner({ commit, state, dispatch }, winner) {
       commit("newWinner", winner);
       await localforage.setItem("winners", state.winners);
-      await dispatch('appendLog', `New winner: prize=${winner.prize}, guest=${winner.guest.staffNo}/${winner.guest.nameZh ? winner.guest.nameZh : winner.guest.nameEn}`);
+      await dispatch(
+        "appendLog",
+        `New winner: prize=${winner.prize}, guest=${winner.guest.staffNo}/${
+          winner.guest.nameZh ? winner.guest.nameZh : winner.guest.nameEn
+        }`
+      );
     },
-    async redrawWinner({
-      commit,
-      state,
-      dispatch
-    }, winner) {
+    async redrawWinner({ commit, state, dispatch }, winner) {
       commit("redrawWinner", winner);
       await localforage.setItem("winners", state.winners);
-      await dispatch('appendLog', `Redraw: prize=${winner.prize}, guest=${winner.guest.staffNo}/${winner.guest.nameZh ? winner.guest.nameZh : winner.guest.nameEn}`);
+      await dispatch(
+        "appendLog",
+        `Redraw: prize=${winner.prize}, guest=${winner.guest.staffNo}/${
+          winner.guest.nameZh ? winner.guest.nameZh : winner.guest.nameEn
+        }`
+      );
       commit("addExcludedGuest", {
         guest: winner.guest,
         prize: winner.prize,
       });
       await localforage.setItem("excludedGuests", state.excludedGuests);
     },
-    async appendLog({
-      commit,
-      state
-    }, msg) {
-      commit('appendLog', msg);
-      await localforage.setItem('logs', state.logs);
+    async appendLog({ commit, state }, msg) {
+      commit("appendLog", msg);
+      await localforage.setItem("logs", state.logs);
     },
-    async clearLogs({
-      commit,
-      state
-    }) {
-      commit('clearLogs');
-      await localforage.setItem('logs', state.logs);
+    async clearLogs({ commit, state }) {
+      commit("clearLogs");
+      await localforage.setItem("logs", state.logs);
     },
-    async updateLogs({
-      commit
-    }, logs) {
+    async updateLogs({ commit }, logs) {
       await localforage.setItem("logs", logs);
       commit("updateLogs", logs);
     },
-    async setup({
-      dispatch,
-      getters
-    }, payload) {
-      await dispatch('updateAnniversary', payload.anniversary);
-      await dispatch('updatePrizeCount', payload.prizeCount);
-      await dispatch('updateGuests', payload.guests);
-      await dispatch('updateExcludedGuests', []);
-      await dispatch('updateWinners', []);
+    async setup({ dispatch, getters }, payload) {
+      await dispatch("updateAnniversary", payload.anniversary);
+      await dispatch("updatePrizeCount", payload.prizeCount);
+      await dispatch("updateGuests", payload.guests);
+      await dispatch("updateExcludedGuests", []);
+      await dispatch("updateWinners", []);
 
       if (!getters.needSetup) {
         autoSaveDataToFile(getters.saveData);
       }
 
-      await dispatch('clearLogs');
-      await dispatch('appendLog', `Setup: anniversary=${payload.anniversary}, prizeCount=${payload.prizeCount}, guests=${payload.guests.length}`);
-    }
+      await dispatch("clearLogs");
+      await dispatch(
+        "appendLog",
+        `Setup: anniversary=${payload.anniversary}, prizeCount=${payload.prizeCount}, guests=${payload.guests.length}`
+      );
+    },
   },
   modules: {},
 });

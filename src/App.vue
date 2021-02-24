@@ -1,6 +1,31 @@
 <template>
   <transition>
-    <router-view></router-view>
+    <div class="fill-height">
+      <router-view></router-view>
+      <v-snackbar
+        top
+        app
+        :value="globalSnackbar.show"
+        @input="(v) => updateGlobalSnackbar({ show: v })"
+        :timeout="globalSnackbar.timeout"
+        :color="globalSnackbar.color"
+        style="opacity: 0.9"
+      >
+        {{ globalSnackbar.msg }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            icon
+            color="primary"
+            text
+            v-bind="attrs"
+            @click="(v) => updateGlobalSnackbar({ show: false })"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
   </transition>
 </template>
 
@@ -47,15 +72,12 @@
 </style>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapMutations } from "vuex";
 
 export default {
   name: "App",
-  data: () => ({
-    //
-  }),
   computed: {
-    ...mapState(["initialized"]),
+    ...mapState(["initialized", "globalSnackbar"]),
   },
   watch: {
     initialized() {
@@ -66,6 +88,7 @@ export default {
   },
   methods: {
     ...mapActions(["loadOrInitializeStates"]),
+    ...mapMutations(["updateGlobalSnackbar"]),
   },
   created() {
     this.loadOrInitializeStates();

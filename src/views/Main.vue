@@ -15,6 +15,11 @@
           </v-btn>
         </template>
         <v-list>
+          <v-list-item @click="navToGameSection">
+            <v-list-item-content>
+              <v-list-item-title class="text-h5">遊戲環節</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
           <v-list-item @click="navToSettings">
             <v-list-item-content>
               <v-list-item-title class="text-h5">設定</v-list-item-title>
@@ -91,6 +96,9 @@ export default {
     ...mapGetters(["needSetup", "eventTitle"]),
   },
   methods: {
+    navToGameSection() {
+      this.$router.push({ path: "/game" });
+    },
     navToSettings() {
       this.$router.push({ path: "/settings" });
     },

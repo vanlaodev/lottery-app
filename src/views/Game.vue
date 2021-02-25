@@ -64,7 +64,7 @@
           </v-col>
         </v-row>
         <v-row
-          v-if="state != 'setup' && remainingNumOfPlayers > 0"
+          v-if="state == 'ready' || state == 'drawing'"
           style="flex: 0 1 auto"
         >
           <v-col cols="12" class="pt-1">
@@ -116,7 +116,7 @@
                 style="flex: 1 1 auto; height: 0px"
               >
                 <v-chip
-                color="info"
+                  color="info"
                   label
                   v-for="player in players"
                   :key="player.rowNum"
@@ -194,6 +194,7 @@ export default {
   methods: {
     ...mapActions(["appendLog"]),
     async excludePlayer(player) {
+      if (this.state != "ready" && this.state != "finished") return;
       this.players = this.players.filter((p) => p.staffNo != player.staffNo);
       this.excludedGuests.push(player);
 
@@ -213,7 +214,7 @@ export default {
         for (let i = 0; i < count; ++i) {
           this.state = "drawing";
 
-          for (let i = 0; i < 100; ++i) {
+          for (let i = 0; i < 50; ++i) {
             await new Promise((resolve) => {
               setTimeout(resolve, 10);
             });
@@ -224,8 +225,6 @@ export default {
             ];
           }
 
-          this.players.push(this.drawingGuest);
-
           await this.appendLog(
             `Player drawn: guest=${this.drawingGuest.staffNo}/${
               this.drawingGuest.nameZh
@@ -234,10 +233,11 @@ export default {
             }`
           );
 
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          this.players.push(this.drawingGuest);
 
-          this.drawingGuest = null;
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
+        this.drawingGuest = null;
         this.state = this.remainingNumOfPlayers > 0 ? "ready" : "finished";
       }
     },

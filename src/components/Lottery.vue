@@ -9,7 +9,7 @@
       >{{ title }}</v-card-title
     >
     <div
-      class="flex-grow-1 d-flex flex-column overflow-y-auto justify-center align-center"
+      class="flex-grow-1 d-flex flex-column overflow-y-auto justify-center align-center py-1"
     >
       <div v-if="drawingGuest" class="text-center drawing-guest-text">
         <div class="text-h1 mt-3">{{ drawingGuest.staffNo }}</div>

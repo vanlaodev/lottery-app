@@ -72,8 +72,8 @@
               <v-card-title
                 >抽人玩遊戲(尚欠{{ remainingNumOfPlayers }}人)</v-card-title
               >
-              <v-card-text>
-                <div v-if="drawingGuest" class="text-center drawing-guest-text">
+              <v-card-text v-if="drawingGuest">
+                <div class="text-center drawing-guest-text">
                   <div class="text-h3 mt-3 red white--text pa-3">
                     {{ drawingGuest.staffNo }} -
                     {{

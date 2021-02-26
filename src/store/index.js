@@ -22,12 +22,8 @@ export default new Vuex.Store({
       /* drumRoll: new Audio(
         require("@/assets/Drum Roll Gaming Sound Effect HD.mp3")
       ), */
-      drumRoll: new Audio(
-        require("@/assets/DrumRoll-01.mp3")
-      ),
-      afterDrumRoll: new Audio(
-        require("@/assets/DrumRoll-02.mp3")
-      ),
+      drumRoll: null,
+      taDa: null,
     },
   },
   getters: {
@@ -118,16 +114,20 @@ export default new Vuex.Store({
     ensureAllSoundsReady({
       state
     }) {
+      const soundPaths = {
+        drumRoll: require("@/assets/DrumRoll.mp3"),
+        taDa: require("@/assets/TaDa.mp3")
+      };
       const promises = [];
       for (const soundKey in state.sounds) {
-        const sound = state.sounds[soundKey];
         const promise = new Promise((resolve, reject) => {
           try {
+            state.sounds[soundKey] = new Audio((soundPaths[soundKey]));
             const cb = () => {
-              sound.removeEventListener("canplaythrough", cb);
+              state.sounds[soundKey].removeEventListener("canplay", cb);
               resolve();
             };
-            sound.addEventListener("canplaythrough", cb);
+            state.sounds[soundKey].addEventListener("canplay", cb);
           } catch (err) {
             reject(err);
           }

@@ -162,8 +162,8 @@ export default {
           ];
         }
         this.sounds.drumRoll.pause(); */
-        this.sounds.afterDrumRoll.currentTime = 0;
-        this.sounds.afterDrumRoll.play();
+        this.sounds.taDa.currentTime = 0;
+        this.sounds.taDa.play();
         this.updateMainOverlay(false);
         this.showConfetti(prize == 1 ? 15000 : 3500);
         const newWinner = {

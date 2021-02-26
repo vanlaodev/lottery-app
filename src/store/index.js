@@ -1,7 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import localforage from "localforage";
-import { autoSaveDataToFile } from "../utils/native-client";
+import {
+  autoSaveDataToFile
+} from "../utils/native-client";
 
 Vue.use(Vuex);
 
@@ -17,8 +19,14 @@ export default new Vuex.Store({
     logs: [],
     globalSnackbar: {},
     sounds: {
-      drumRoll: new Audio(
+      /* drumRoll: new Audio(
         require("@/assets/Drum Roll Gaming Sound Effect HD.mp3")
+      ), */
+      drumRoll: new Audio(
+        require("@/assets/DrumRoll-01.mp3")
+      ),
+      afterDrumRoll: new Audio(
+        require("@/assets/DrumRoll-02.mp3")
       ),
     },
   },
@@ -32,8 +40,8 @@ export default new Vuex.Store({
     guestsCanBeDrawn: (state) => {
       return state.guests.filter(
         (x) =>
-          !state.winners.map((w) => w.guest.staffNo).includes(x.staffNo) &&
-          !state.excludedGuests.map((w) => w.guest.staffNo).includes(x.staffNo)
+        !state.winners.map((w) => w.guest.staffNo).includes(x.staffNo) &&
+        !state.excludedGuests.map((w) => w.guest.staffNo).includes(x.staffNo)
       );
     },
     nextPrize: (state) => {
@@ -107,7 +115,9 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    ensureAllSoundsReady({ state }) {
+    ensureAllSoundsReady({
+      state
+    }) {
       const promises = [];
       for (const soundKey in state.sounds) {
         const sound = state.sounds[soundKey];
@@ -126,7 +136,9 @@ export default new Vuex.Store({
       }
       return Promise.all(promises);
     },
-    showGlobalErrorSnackbar({ commit }, error) {
+    showGlobalErrorSnackbar({
+      commit
+    }, error) {
       commit("updateGlobalSnackbar", {
         show: true,
         msg: `發生錯誤：${error}`,
@@ -134,7 +146,9 @@ export default new Vuex.Store({
         color: "error",
       });
     },
-    async loadSaveData({ dispatch }, data) {
+    async loadSaveData({
+      dispatch
+    }, data) {
       await dispatch("updateAnniversary", data.data.anniversary);
       await dispatch("updatePrizeCount", data.data.prizeCount);
       await dispatch("updateGuests", data.data.guests ?? []);
@@ -142,7 +156,9 @@ export default new Vuex.Store({
       await dispatch("updateWinners", data.data.winners ?? []);
       await dispatch("updateLogs", data.data.logs ?? []);
     },
-    async loadOrInitializeStates({ commit }) {
+    async loadOrInitializeStates({
+      commit
+    }) {
       commit("updateAnniversary", await localforage.getItem("anniversary"));
       commit("updatePrizeCount", await localforage.getItem("prizeCount"));
       commit("updateGuests", (await localforage.getItem("guests")) ?? []);
@@ -153,27 +169,41 @@ export default new Vuex.Store({
       commit("updateWinners", (await localforage.getItem("winners")) ?? []);
       commit("updateLogs", (await localforage.getItem("logs")) ?? []);
     },
-    async updateAnniversary({ commit }, anniversary) {
+    async updateAnniversary({
+      commit
+    }, anniversary) {
       await localforage.setItem("anniversary", anniversary);
       commit("updateAnniversary", anniversary);
     },
-    async updatePrizeCount({ commit }, prizeCount) {
+    async updatePrizeCount({
+      commit
+    }, prizeCount) {
       await localforage.setItem("prizeCount", prizeCount);
       commit("updatePrizeCount", prizeCount);
     },
-    async updateGuests({ commit }, guests) {
+    async updateGuests({
+      commit
+    }, guests) {
       await localforage.setItem("guests", guests);
       commit("updateGuests", guests);
     },
-    async updateWinners({ commit }, winners) {
+    async updateWinners({
+      commit
+    }, winners) {
       await localforage.setItem("winners", winners);
       commit("updateWinners", winners);
     },
-    async updateExcludedGuests({ commit }, excludedGuests) {
+    async updateExcludedGuests({
+      commit
+    }, excludedGuests) {
       await localforage.setItem("excludedGuests", excludedGuests);
       commit("updateExcludedGuests", excludedGuests);
     },
-    async newWinner({ commit, state, dispatch }, winner) {
+    async newWinner({
+      commit,
+      state,
+      dispatch
+    }, winner) {
       commit("newWinner", winner);
       await localforage.setItem("winners", state.winners);
       await dispatch(
@@ -183,7 +213,11 @@ export default new Vuex.Store({
         }`
       );
     },
-    async redrawWinner({ commit, state, dispatch }, winner) {
+    async redrawWinner({
+      commit,
+      state,
+      dispatch
+    }, winner) {
       commit("redrawWinner", winner);
       await localforage.setItem("winners", state.winners);
       await dispatch(
@@ -198,19 +232,30 @@ export default new Vuex.Store({
       });
       await localforage.setItem("excludedGuests", state.excludedGuests);
     },
-    async appendLog({ commit, state }, msg) {
+    async appendLog({
+      commit,
+      state
+    }, msg) {
       commit("appendLog", msg);
       await localforage.setItem("logs", state.logs);
     },
-    async clearLogs({ commit, state }) {
+    async clearLogs({
+      commit,
+      state
+    }) {
       commit("clearLogs");
       await localforage.setItem("logs", state.logs);
     },
-    async updateLogs({ commit }, logs) {
+    async updateLogs({
+      commit
+    }, logs) {
       await localforage.setItem("logs", logs);
       commit("updateLogs", logs);
     },
-    async setup({ dispatch, getters }, payload) {
+    async setup({
+      dispatch,
+      getters
+    }, payload) {
       await dispatch("updateAnniversary", payload.anniversary);
       await dispatch("updatePrizeCount", payload.prizeCount);
       await dispatch("updateGuests", payload.guests);

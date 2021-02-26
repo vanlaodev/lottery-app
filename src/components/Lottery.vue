@@ -101,7 +101,6 @@ export default {
     };
   },
   beforeDestroy() {
-    this.sounds.drumRoll.pause();
     this.stopConfetti();
     this.unwatchStore();
     this.cancelDelayUnsetLastWinner();
@@ -138,9 +137,23 @@ export default {
       if (prize != null && this.randomSortedGuestsCanBeDrawn) {
         this.state = "drawing";
         this.updateMainOverlay(true);
-        this.sounds.drumRoll.loop = true;
+        this.sounds.drumRoll.currentTime = 0;
         await this.sounds.drumRoll.play();
-        for (let i = 0; i < 200; ++i) {
+        let drumRollEnded = false;
+        const drumRollEndedCb = () => {
+          drumRollEnded = true;
+          this.sounds.drumRoll.removeEventListener("ended", drumRollEndedCb);
+        };
+        this.sounds.drumRoll.addEventListener("ended", drumRollEndedCb);
+        while (!drumRollEnded) {
+          this.drawingGuest = this.randomSortedGuestsCanBeDrawn[
+            Math.floor(Math.random() * this.randomSortedGuestsCanBeDrawn.length)
+          ];
+          await new Promise((resolve) => {
+            setTimeout(resolve, 10);
+          });
+        }
+        /*  for (let i = 0; i < 200; ++i) {
           await new Promise((resolve) => {
             setTimeout(resolve, 10);
           });
@@ -148,7 +161,9 @@ export default {
             Math.floor(Math.random() * this.randomSortedGuestsCanBeDrawn.length)
           ];
         }
-        this.sounds.drumRoll.pause();
+        this.sounds.drumRoll.pause(); */
+        this.sounds.afterDrumRoll.currentTime = 0;
+        this.sounds.afterDrumRoll.play();
         this.updateMainOverlay(false);
         this.showConfetti(prize == 1 ? 15000 : 3500);
         const newWinner = {
@@ -174,7 +189,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['sounds']),
+    ...mapState(["sounds"]),
     drawBtnVisible: function () {
       // return this.state == "ready" || this.state == "drawing";
       return true;

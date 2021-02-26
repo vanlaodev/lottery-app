@@ -89,6 +89,7 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
+import soundManager from "../utils/sound-manager";
 
 export default {
   name: "Lottery",
@@ -137,33 +138,21 @@ export default {
       if (prize != null && this.randomSortedGuestsCanBeDrawn) {
         this.state = "drawing";
         this.updateMainOverlay(true);
-        this.sounds.drumRoll.currentTime = 0;
-        await this.sounds.drumRoll.play();
         let drumRollEnded = false;
-        const drumRollEndedCb = () => {
-          drumRollEnded = true;
-          this.sounds.drumRoll.removeEventListener("ended", drumRollEndedCb);
-        };
-        this.sounds.drumRoll.addEventListener("ended", drumRollEndedCb);
-        while (!drumRollEnded) {
+        soundManager.drumRoll
+          .waitUntilPlayable(true)
+          .then((sound) => sound.play())
+          .then((sound) => sound.waitUntilEnded())
+          .then(() => (drumRollEnded = true));
+        do {
           this.drawingGuest = this.randomSortedGuestsCanBeDrawn[
             Math.floor(Math.random() * this.randomSortedGuestsCanBeDrawn.length)
           ];
           await new Promise((resolve) => {
             setTimeout(resolve, 10);
           });
-        }
-        /*  for (let i = 0; i < 200; ++i) {
-          await new Promise((resolve) => {
-            setTimeout(resolve, 10);
-          });
-          this.drawingGuest = this.randomSortedGuestsCanBeDrawn[
-            Math.floor(Math.random() * this.randomSortedGuestsCanBeDrawn.length)
-          ];
-        }
-        this.sounds.drumRoll.pause(); */
-        this.sounds.taDa.currentTime = 0;
-        this.sounds.taDa.play();
+        } while (!drumRollEnded);
+        soundManager.taDa.waitUntilPlayable(true).then((sound) => sound.play());
         this.updateMainOverlay(false);
         this.showConfetti(prize == 1 ? 15000 : 3500);
         const newWinner = {

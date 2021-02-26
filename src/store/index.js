@@ -18,13 +18,6 @@ export default new Vuex.Store({
     mainOverlay: false,
     logs: [],
     globalSnackbar: {},
-    sounds: {
-      /* drumRoll: new Audio(
-        require("@/assets/Drum Roll Gaming Sound Effect HD.mp3")
-      ), */
-      drumRoll: null,
-      taDa: null,
-    },
   },
   getters: {
     eventTitle: (state) => {
@@ -111,31 +104,6 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    ensureAllSoundsReady({
-      state
-    }) {
-      const soundPaths = {
-        drumRoll: require("@/assets/DrumRoll.mp3"),
-        taDa: require("@/assets/TaDa.mp3")
-      };
-      const promises = [];
-      for (const soundKey in state.sounds) {
-        const promise = new Promise((resolve, reject) => {
-          try {
-            state.sounds[soundKey] = new Audio((soundPaths[soundKey]));
-            const cb = () => {
-              state.sounds[soundKey].removeEventListener("canplay", cb);
-              resolve();
-            };
-            state.sounds[soundKey].addEventListener("canplay", cb);
-          } catch (err) {
-            reject(err);
-          }
-        });
-        promises.push(promise);
-      }
-      return Promise.all(promises);
-    },
     showGlobalErrorSnackbar({
       commit
     }, error) {

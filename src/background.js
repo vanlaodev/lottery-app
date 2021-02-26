@@ -4,7 +4,6 @@ import {
   app,
   protocol,
   BrowserWindow,
-  Menu
 } from "electron";
 import {
   createProtocol

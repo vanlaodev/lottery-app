@@ -6,11 +6,11 @@ const {
 
 const fs = require('fs')
 
-ipcMain.on('exit-app', (event, arg) => {
+ipcMain.on('exit-app', () => {
     app.quit()
 });
 
-ipcMain.on('show-save-file-dialog', (event, arg) => {
+ipcMain.on('show-save-file-dialog', (event) => {
     try {
         const file = dialog.showSaveDialogSync();
         if (!file) {

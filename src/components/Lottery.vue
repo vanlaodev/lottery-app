@@ -88,7 +88,7 @@
 </style>
 
 <script>
-import { mapGetters, mapActions, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 
 export default {
   name: "Lottery",
@@ -101,6 +101,7 @@ export default {
     };
   },
   beforeDestroy() {
+    this.sounds.drumRoll.pause();
     this.stopConfetti();
     this.unwatchStore();
     this.cancelDelayUnsetLastWinner();
@@ -137,6 +138,8 @@ export default {
       if (prize != null && this.randomSortedGuestsCanBeDrawn) {
         this.state = "drawing";
         this.updateMainOverlay(true);
+        this.sounds.drumRoll.loop = true;
+        await this.sounds.drumRoll.play();
         for (let i = 0; i < 200; ++i) {
           await new Promise((resolve) => {
             setTimeout(resolve, 10);
@@ -145,6 +148,7 @@ export default {
             Math.floor(Math.random() * this.randomSortedGuestsCanBeDrawn.length)
           ];
         }
+        this.sounds.drumRoll.pause();
         this.updateMainOverlay(false);
         this.showConfetti(prize == 1 ? 15000 : 3500);
         const newWinner = {
@@ -170,6 +174,7 @@ export default {
     },
   },
   computed: {
+    ...mapState(['sounds']),
     drawBtnVisible: function () {
       // return this.state == "ready" || this.state == "drawing";
       return true;

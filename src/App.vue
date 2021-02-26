@@ -77,24 +77,21 @@ import { mapActions, mapState, mapMutations } from "vuex";
 export default {
   name: "App",
   computed: {
-    ...mapState(["initialized", "globalSnackbar"]),
-  },
-  watch: {
-    initialized() {
-      if (this.initialized) {
-        this.$router.replace({ path: "/main" });
-      }
-    },
+    ...mapState(["globalSnackbar", "sounds"]),
   },
   methods: {
-    ...mapActions(["loadOrInitializeStates"]),
-    ...mapMutations(["updateGlobalSnackbar"]),
+    ...mapActions(["loadOrInitializeStates", "ensureAllSoundsReady"]),
+    ...mapMutations(["updateGlobalSnackbar", "setInitialized"]),
   },
   created() {
-    this.loadOrInitializeStates();
+    this.loadOrInitializeStates().then(this.ensureAllSoundsReady).then(() => {
+      this.setInitialized();
+      this.$router.replace({ path: "/main" });
+    });
   },
   mounted() {
-    if (this.$route.path !== "/") this.$router.replace({ path: "/" });
+    if (this.$route.path !== "/" && !this.initialized)
+      this.$router.replace({ path: "/" });
   },
 };
 </script>

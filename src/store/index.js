@@ -16,6 +16,11 @@ export default new Vuex.Store({
     mainOverlay: false,
     logs: [],
     globalSnackbar: {},
+    sounds: {
+      drumRoll: new Audio(
+        require("@/assets/Drum Roll Gaming Sound Effect HD.mp3")
+      ),
+    },
   },
   getters: {
     eventTitle: (state) => {
@@ -102,6 +107,25 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    ensureAllSoundsReady({ state }) {
+      const promises = [];
+      for (const soundKey in state.sounds) {
+        const sound = state.sounds[soundKey];
+        const promise = new Promise((resolve, reject) => {
+          try {
+            const cb = () => {
+              sound.removeEventListener("canplaythrough", cb);
+              resolve();
+            };
+            sound.addEventListener("canplaythrough", cb);
+          } catch (err) {
+            reject(err);
+          }
+        });
+        promises.push(promise);
+      }
+      return Promise.all(promises);
+    },
     showGlobalErrorSnackbar({ commit }, error) {
       commit("updateGlobalSnackbar", {
         show: true,
@@ -128,7 +152,6 @@ export default new Vuex.Store({
       );
       commit("updateWinners", (await localforage.getItem("winners")) ?? []);
       commit("updateLogs", (await localforage.getItem("logs")) ?? []);
-      commit("setInitialized");
     },
     async updateAnniversary({ commit }, anniversary) {
       await localforage.setItem("anniversary", anniversary);

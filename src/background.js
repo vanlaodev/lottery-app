@@ -24,6 +24,7 @@ protocol.registerSchemesAsPrivileged([{
   privileges: {
     secure: true,
     standard: true,
+    stream: true
   },
 }, ]);
 
